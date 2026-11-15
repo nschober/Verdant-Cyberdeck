@@ -17,6 +17,12 @@ def desktop():
     exe=str(HOME/'.local/bin/kali-cyberdeck').replace('\\','\\\\').replace('"','\\"').replace('`','\\`').replace('$','\\$')
     return f'[Desktop Entry]\n{MARKER}\nType=Application\nName=VERDANT CYBERDECK\nExec="{exe}"\nTerminal=false\nCategories=System;Utility;\n'
 
+def install_alerts():
+    write_owned(HOME/'.local/bin/verdant-alerts',f'#!/usr/bin/env bash\n{MARKER}\nexec {shlex.quote(str(ROOT/"run.sh"))} --alerts-only\n',True)
+    exe=str(HOME/'.local/bin/verdant-alerts').replace('\\','\\\\').replace('"','\\"')
+    content=f'[Desktop Entry]\n{MARKER}\nType=Application\nName=Verdant Handshake Alerts\nExec="{exe}"\nTerminal=false\n'
+    write_owned(HOME/'.config/autostart/verdant-alerts.desktop',content)
+
 def write_owned(path,content,executable=False):
     manifest=json.loads(MANIFEST.read_text()) if MANIFEST.exists() else {}
     key=str(path)
@@ -56,6 +62,9 @@ if __name__=='__main__':
         write_owned(HOME/'.local/share/applications/kali-cyberdeck.desktop',desktop())
         # Adopt the previous project's entry, backing it up first.
         write_owned(autostart,desktop())
+        install_alerts()
+    elif command=='install-alerts':
+        install_alerts()
     elif command=='enable':
         write_owned(autostart,desktop())
     elif command=='disable':

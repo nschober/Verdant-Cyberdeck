@@ -32,7 +32,7 @@ class TFTIntegrationTests(unittest.TestCase):
     def test_unknown_native_launcher_is_not_overwritten(self):
         with self.assertRaises(ValueError):integration.patch_launcher('print("different software")\n')
     def fixture(self, base):
-        paths={name:base/name for name in ('LAUNCHER','ARTWORK','MODE','AUTO_FLAG','RUNTIME')}
+        paths={name:base/name for name in ('LAUNCHER','ARTWORK','MODE','AUTO_FLAG','RUNTIME','PWN_DROPIN','PWN_UNIT','PWN_CONFIG','PWN_DEFAULTS','TERMINAL','MONITOR_UNIT')}
         paths['LAUNCHER'].write_bytes(ORIGINAL.read_bytes());paths['LAUNCHER'].chmod(0o755)
         paths['MODE'].write_text('manual\n')
         image=base/'source.png';render_splash().save(image)
@@ -105,7 +105,8 @@ class NativeSupervisorTests(unittest.TestCase):
                 if str(path)=='/sys/class/graphics/fb0/stride':return '1920\n'
                 return original_read(path,*args,**kwargs)
             def factory(*args):
-                deck=RealDeck(*args,log_path=base/'native.log');deck.splash_until=0
+                from cyberdeck.alerts import AlertReader
+                deck=RealDeck(*args,log_path=base/'native.log',alert_reader=AlertReader(base/'no-alert'));deck.splash_until=0
                 deck.tick=lambda:None;decks.append(deck);return deck
             real_open=os.open;real_close=os.close
             stack.enter_context(patch.object(Path,'read_text',read))

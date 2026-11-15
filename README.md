@@ -61,6 +61,20 @@ After installation, `~/.local/bin/verdant-cyberdeck` is the preferred launcher. 
 
 The existing desktop/autostart entry filenames remain `kali-cyberdeck.desktop` to avoid duplicate startup entries. Their displayed name is Verdant Cyberdeck. On a 480×320 desktop the interface is borderless; on larger desktops it is a fixed-size window. Escape and Exit close the dashboard without stopping independently running tools or services.
 
+## Background capture, alerts and typography
+
+[Background integration](docs/BACKGROUND-ALERTS.md) keeps the existing Pwnagotchi service running while the dashboard or normal terminal is foreground. A passive capture-event monitor delivers eight-second native overlays and always-on-top ordinary desktop notifications. The centered title is size 19; button labels are bold and one size larger. The splash remains four seconds.
+
+```bash
+# Run from SSH/desktop; an active native terminal is restarted for its overlay.
+sudo /usr/bin/python3 /home/kali/verdant-cyberdeck/scripts/integrate_tft.py \
+  --apply --background-pwn --restart-terminal
+```
+
+The linked guide specifies the narrow, backed-up headless override/unit change, activation behavior, synthetic testing, window-manager limits and rollback. Main Pwnagotchi TOML, radio settings, plugins and learned data remain under the existing installation. Pwnagotchi is started only through its explicit controls, not by opening Verdant.
+
+![Synthetic notification preview — no handshake captured](assets/handshake-alert-demo.png)
+
 ## Native TFT dashboard and AUTO mode
 
 The [v2 native integration](docs/TFT-NATIVE-DASHBOARD.md) connects Verdant's real six-button dashboard to the existing TFT framebuffer/input supervisor. It preserves terminal/Pwnagotchi handoff and installs root-owned runtime modules, with verified backups and rollback.

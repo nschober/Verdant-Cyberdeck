@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased — background capture and overlays
+
+- Keep Pwnagotchi headless using a separate owned configuration override and remove only its native-terminal service conflict.
+- Preserve background operation across dashboard/terminal switches and explicit service controls.
+- Add a passive future-event journal monitor, duplicate suppression, expiring native overlays and a user-session topmost desktop notifier.
+- Add clearly labeled synthetic display testing and protected shared notification state.
+- Center the title at size 19 and use bold button labels at sizes 15/12.
+- Preserve AUTO selection, four-second splash, main configuration, plugins and learned data.
+
+
 ## Unreleased — persistent native TFT dashboard
 
 - Connect the actual six-button dashboard to the existing framebuffer/input supervisor instead of only replacing its transient splash.

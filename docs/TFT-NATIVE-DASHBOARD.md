@@ -1,4 +1,6 @@
-# Native TFT dashboard integration (v2)
+# Native TFT dashboard integration
+
+For current background behavior and capture alerts, use [Background Pwnagotchi and handshake popups](BACKGROUND-ALERTS.md). The original v2 stop-current-application behavior described below applies before background integration; in background mode Pwnagotchi is no longer a foreground owner and continues across F1/terminal/dashboard switches.
 
 ## Why the previous change was insufficient
 

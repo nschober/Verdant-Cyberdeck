@@ -1,5 +1,12 @@
 # Verification results
 
+## Background capture and notifications
+
+Clean-export verification: 49 tests total, 48 passed and one expected host-only skip. Python compilation, five shell-script syntax checks and offscreen startup passed. The desktop notifier uses a mocked Tk window-manager test; native overlays use actual Pillow rendering and fixtures. No real handshake was fabricated or captured by the tests, and physical overlay/desktop observation remains pending.
+
+New tests cover capture-log recognition versus old counts/files, cursor duplicate suppression, atomic metadata, expiry/dismissal, untrusted-file rejection, synthetic labeling, popup click protection, desktop topmost geometry/expiry, service conflict preservation, background ownership, last-pass terminal composition, main-TOML preservation and rollback. Native/desktop screenshots are rendered previews; live capture and physical foreground-window observation still require the host apply and actual/synthetic event testing.
+
+
 ## Native TFT dashboard v2
 
 Final portable suite: 38 tests, 37 passed and one expected host-local preservation skip. The startup/replay timing test verifies a four-second phase from the first prepared native frame, within the requested 3–5 seconds.

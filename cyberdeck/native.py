@@ -12,9 +12,11 @@ from .dashboard import Dashboard
 from .splash import render_splash, SPLASH_SECONDS
 from .backend import installed
 from . import system_status
+from .alerts import AlertReader, CARD
 
 class NativeDeck(Dashboard):
-    def __init__(self, terminal, pwn_action, log_path=None):
+    def __init__(self, terminal, pwn_action, log_path=None, alert_reader=None):
+        self.alerts = alert_reader or AlertReader()
         self._terminal = terminal
         self._pwn_action = pwn_action
         self._selection = None
@@ -77,6 +79,11 @@ class NativeDeck(Dashboard):
     def coordinate(value,minimum,maximum,pixels):
         return max(0,min(pixels-1,round((value-minimum)*(pixels-1)/max(1,maximum-minimum))))
 
+    def tap(self,x,y):
+        if self.alerts.current() and CARD[0]<=x<=CARD[2] and CARD[1]<=y<=CARD[3]:
+            self.alerts.dismiss();return
+        super().tap(x,y)
+
     def touch_down(self,device_id):
         if time.monotonic()<self.splash_until:
             self._blocked_touches.add(device_id)
@@ -138,10 +145,12 @@ class NativeDeck(Dashboard):
             self.splash_until=time.monotonic()+SPLASH_SECONDS
             self._splash_pending=False
             logging.info('Native splash phase started: %.1f seconds',SPLASH_SECONDS)
+            self.alerts.draw(frame)
             return frame
         frame=super().render()
         if self._selection is not None and time.monotonic()>=self.splash_until and self._selection<len(self.buttons):
             ImageDraw.Draw(frame).rounded_rectangle(self.buttons[self._selection].rect,radius=6,outline='#eaffee',width=2)
+        self.alerts.draw(frame)
         return frame
 
 

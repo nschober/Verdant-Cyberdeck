@@ -7,6 +7,12 @@ SERVICE = 'pwnagotchi.service'
 CONFIG = Path('/etc/pwnagotchi/config.toml')
 UNIT = Path('/etc/systemd/system') / SERVICE
 
+BACKGROUND_CONFIG = Path('/etc/pwnagotchi/conf.d/zzzz-verdant-background.toml')
+
+def background_enabled():
+    try:return tomllib.loads(BACKGROUND_CONFIG.read_text()).get('ui',{}).get('display',{}).get('enabled') is False
+    except (OSError,ValueError):return False
+
 def state():
     result = run(['systemctl', 'show', SERVICE, '--property=ActiveState,SubState,MainPID,Result'])
     if result.code:
@@ -29,6 +35,9 @@ def configuration():
     try:
         config = tomllib.loads(CONFIG.read_text())
         rows = [f'Configuration: {CONFIG}', 'Read only; credentials omitted.']
+        background=background_enabled()
+        if background:
+            rows += ['Verdant background config: enabled',f'Original display setting retained: {config.get("ui",{}).get("display",{}).get("enabled")}', 'Effective physical display setting: false (separate drop-in)']
         for section, keys in [('main', ['iface', 'mode', 'custom_plugins']), ('ai', ['enabled']),
                               ('ui.display', ['enabled', 'type', 'device', 'rotation']),
                               ('ui.web', ['enabled', 'address', 'port'])]:
@@ -36,7 +45,8 @@ def configuration():
             for part in section.split('.'):
                 obj = obj.get(part, {})
             for key in keys:
-                rows.append(f'{section}.{key}: {obj.get(key, "not explicitly set")}')
+                value=False if background and section=='ui.display' and key=='enabled' else obj.get(key,'not explicitly set')
+                rows.append(f'{section}.{key}: {value}')
         plugins = config.get('main', {}).get('plugins', {})
         rows += ['\nEnabled plugins: ' + ', '.join(k for k,v in plugins.items() if isinstance(v,dict) and v.get('enabled'))]
         mode = Path('/etc/pwnagotchi/mode')

@@ -7,12 +7,13 @@ import unittest
 from unittest.mock import patch
 from evdev import ecodes as E
 from cyberdeck.native import NativeDeck,write_terminal_input
+from cyberdeck.alerts import AlertReader
 
 class NativeTests(unittest.TestCase):
     def setUp(self):
         self.directory=tempfile.TemporaryDirectory()
         self.terminal=[];self.actions=[]
-        self.deck=NativeDeck(self.terminal.append,self.actions.append,log_path=Path(self.directory.name)/'native.log')
+        self.deck=NativeDeck(self.terminal.append,self.actions.append,log_path=Path(self.directory.name)/'native.log',alert_reader=AlertReader(Path(self.directory.name)/'no-alert'))
     def tearDown(self):
         self.deck.close_runtime();self.directory.cleanup()
     def test_real_six_button_menu_persists_after_splash(self):
@@ -65,6 +66,14 @@ class NativeTests(unittest.TestCase):
             clock[0]=200.0
             self.deck.preview_splash();self.deck.render()
             self.assertEqual(self.deck.splash_until,204.0)
+    def test_popup_click_dismisses_without_activating_hidden_menu(self):
+        from cyberdeck.alerts import EventStore,AlertReader
+        path=Path(self.directory.name)/'popup.json'
+        EventStore(path,os.getgid()).publish({'version':1,'kind':'test','id':'demo','timestamp':time.time(),'detail':'Synthetic'})
+        self.deck.alerts=AlertReader(path,os.getuid());self.deck.splash_until=0
+        self.deck.tap(250,100)
+        self.assertEqual(self.deck.title,'VERDANT CYBERDECK')
+        self.assertIsNone(self.deck.alerts.current());self.assertEqual(self.actions,[])
     def test_fifo_rejects_regular_file_and_symlink(self):
         base=Path(self.directory.name);real=base/'regular';real.write_bytes(b'preserve')
         with self.assertRaises(OSError):write_terminal_input(b'overwrite',real,os.getuid())

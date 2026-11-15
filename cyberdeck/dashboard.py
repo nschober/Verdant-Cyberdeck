@@ -13,6 +13,10 @@ from .splash import render_splash, SPLASH_SECONDS
 
 BG, PANEL, GREEN, WHITE = '#07140f', '#133326', '#67fa9f', '#ebfff2'
 FONT = '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'
+BOLD_FONT = '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf'
+TITLE_SIZE = 19
+BUTTON_SIZE = 15
+SMALL_BUTTON_SIZE = 12
 
 @dataclass
 class Button:
@@ -118,6 +122,8 @@ class Dashboard:
 
     def confirm_service(self, action):
         warning = ('The existing service starts its radio dependencies. Wireless operations may begin and its TFT renderer may take the screen.' if action != 'stop' else 'Stops the existing Pwnagotchi service and its PartOf dependencies. Configuration and learned data are preserved.')
+        if action!='stop' and pwnagotchi.background_enabled():
+            warning='Starts the existing Pwnagotchi service in the background using its current radio/AI settings. Wireless operations may begin. Other dashboard and terminal windows stay open.'
         self.text(action.upper()+' PWNAGOTCHI?',warning,[('CONFIRM '+action.upper(),lambda:self.control(action)),('CANCEL',self.pwn)])
 
     def control(self, action):
@@ -215,7 +221,12 @@ class Dashboard:
         if time.monotonic()<self.splash_until:
             remaining=self.splash_until-time.monotonic()
             return render_splash(1.0 if remaining>10 else 1.0-remaining/SPLASH_SECONDS)
-        draw.text((8,5),self.title[:36],font=fonts[17],fill=GREEN)
+        title_font=ImageFont.truetype(BOLD_FONT,TITLE_SIZE)
+        title=self.title
+        while title_font.getlength(title)>460:
+            title=title[:-2]+'…' if title.endswith('…') else title[:-1]+'…'
+        bounds=draw.textbbox((0,0),title,font=title_font)
+        draw.text(((480-(bounds[2]-bounds[0]))/2-bounds[0],2),title,font=title_font,fill=GREEN)
         # Keep three short status lines inside the header.
         status=self.status.splitlines()
         for i,line in enumerate(status[:3]):
@@ -226,9 +237,10 @@ class Dashboard:
             draw.rounded_rectangle(button.rect,radius=6,fill=PANEL,outline='#28513c')
             x1,y1,x2,y2=button.rect
             label=button.label
-            size=14 if len(label)<23 else 11
-            box=draw.textbbox((0,0),label,font=fonts[size])
-            draw.text(((x1+x2-box[2])/2,(y1+y2-size)/2-2),label,font=fonts[size],fill=GREEN)
+            size=BUTTON_SIZE if len(label)<23 else SMALL_BUTTON_SIZE
+            button_font=ImageFont.truetype(BOLD_FONT,size)
+            box=draw.textbbox((0,0),label,font=button_font)
+            draw.text(((x1+x2-(box[2]-box[0]))/2-box[0],(y1+y2-(box[3]-box[1]))/2-box[1]),label,font=button_font,fill=GREEN)
         if self.items is None:
             for i,line in enumerate(self.lines[self.offset:self.offset+10]):
                 draw.text((8,112+i*16),line,font=fonts[12],fill=WHITE)

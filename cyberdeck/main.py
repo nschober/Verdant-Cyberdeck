@@ -13,7 +13,12 @@ def main():
     parser.add_argument('--framebuffer',action='store_true',help='Explicit TFT backend; refuses existing TFT owners')
     parser.add_argument('--self-test',action='store_true',help='Exercise pages offscreen; never touch radios or services')
     parser.add_argument('--smoke-test',action='store_true',help='Open existing desktop display and exit after two seconds')
+    parser.add_argument('--alerts-only',action='store_true',help='Hidden always-on-top desktop capture notifications')
     args=parser.parse_args()
+    if args.alerts_only:
+        from .alerts import desktop_notifications
+        desktop_notifications()
+        return
     (ROOT/'logs').mkdir(exist_ok=True)
     logging.basicConfig(level=logging.INFO,handlers=[RotatingFileHandler(ROOT/'logs/cyberdeck.log',maxBytes=500000,backupCount=2)],format='%(asctime)s %(levelname)s %(message)s')
     logging.info('Starting dashboard: %s',args)
