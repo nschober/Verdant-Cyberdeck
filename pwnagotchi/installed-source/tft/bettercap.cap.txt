@@ -1,0 +1,8 @@
+set api.rest.address 127.0.0.1
+set api.rest.port 8081
+set api.rest.username [REDACTED]
+set api.rest.password [REDACTED]
+set api.rest.websocket true
+set wifi.interface wlan1
+set wifi.skip_broken true
+api.rest on

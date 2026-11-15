@@ -1,0 +1,28 @@
+Pillow
+PyYAML
+rpi.lgpio
+dbus-python
+file-read-backwards
+flask
+flask-cors
+flask-wtf
+gast
+gpiozero
+inky
+pycryptodome
+python-prctl
+pydrive2
+python-dateutil
+requests
+rpi_hardware_pwm
+scapy
+shimmy
+smbus2
+spidev
+stable_baselines3
+toml
+torch==2.5.1; platform_machine=='aarch64'
+torchvision==0.20.1; platform_machine=='aarch64'
+tweepy
+websockets
+gymnasium

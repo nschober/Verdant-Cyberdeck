@@ -30,13 +30,19 @@ main.plugins.example.unknown = "unrecognized-private-value"
             (source/'capture.pcap').write_bytes(b'synthetic-capture')
             (source/'data').mkdir();(source/'data/learned.py').write_text('do not export runtime data')
             (source/'.venv').mkdir();(source/'.venv/library.py').write_text('do not export virtualenv')
+            (source/'.bootstrap').mkdir();(source/'.bootstrap/pip.py').write_text('do not export bootstrap')
+            (source/'bin').mkdir();(source/'bin/pwnagotchi').write_text('#!/usr/bin/python3\nprint(1)\n')
+            (source/'logo.png').write_bytes(b'synthetic-image-bytes')
+            (source/'peer.go').write_text('package main\n')
+            (source/'pyproject.toml').write_text('[project]\nname = "fixture-package"\n')
             (source/'LICENSE').write_text('Synthetic fixture license text')
             (source/'bettercap.cap').write_text('set wifi.interface wlan-test\n')
             report=collect(base/'review',{'source':source},{})
             self.assertEqual(code.read_bytes(),content)
             self.assertEqual((base/'review/source/plugin.py').read_bytes(),content)
             paths={record['path'] for record in report['files']}
-            self.assertEqual(paths,{'source/plugin.py','source/LICENSE','source/bettercap.cap.txt'})
+            self.assertEqual(paths,{'source/plugin.py','source/LICENSE','source/bettercap.cap.txt','source/bin/pwnagotchi','source/logo.png','source/peer.go','source/pyproject.toml'})
+            self.assertIn('fixture-package',(base/'review/source/pyproject.toml').read_text())
     def test_missing_source_is_explicit_and_existing_output_is_preserved(self):
         with tempfile.TemporaryDirectory() as directory:
             base=Path(directory)

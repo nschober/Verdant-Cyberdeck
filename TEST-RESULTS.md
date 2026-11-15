@@ -1,5 +1,12 @@
 # Verification results
 
+## Runtime source-export update
+
+The host-local historical preservation check now detects configuration checksum drift since the original baseline. The source/configuration files were not written by this repository update, and the current redacted setting values match the user's export. The baseline is retained unchanged and the observed drift is not suppressed or described as a pass. A new local comparison records checksums for the remainder of this read-only review; it is not a replacement for the historical evidence.
+
+The 21-test portable suite is verified separately on a clean export, where the expected host-local preservation check is skipped. Original exported-source hashes, repository-copy manifests and license bytes are checked directly. Source omission and redaction limits are documented in `pwnagotchi/SOURCE-EXPORT.md`. Runtime/physical-hardware checks remain unverified.
+
+
 ## Pwnagotchi file snapshot update
 
 The updated local suite has 21 tests, including four exporter/redaction tests. All 21 pass on the original host, including the unchanged Pwnagotchi checksum check. Protected runtime and plugin paths remain inaccessible; 14 readable host-integration files are captured with TOML redaction. The exporter returns a partial-export status (exit 2) for the two inaccessible source roots, rather than claiming completeness. The initial GitHub publication passed its 17-test suite with the expected one host-only skip; the updated workflow must be checked separately.

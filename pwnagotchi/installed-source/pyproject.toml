@@ -1,0 +1,19 @@
+# Review-only snapshot. All unapproved strings and sensitive fields are redacted.
+# Not a deployment or restoration configuration; do not install over a working setup.
+"build-system"."requires" = ["[REDACTED]"]
+"build-system"."build-backend" = "[REDACTED]"
+"project"."name" = "[REDACTED]"
+"project"."dynamic" = ["[REDACTED]"]
+"project"."dependencies" = ["[REDACTED]", "[REDACTED]", "[REDACTED]", "[REDACTED]", "[REDACTED]", "[REDACTED]", "[REDACTED]", "[REDACTED]", "[REDACTED]", "[REDACTED]", "[REDACTED]", "[REDACTED]", "[REDACTED]", "[REDACTED]", "[REDACTED]", "[REDACTED]", "[REDACTED]", "[REDACTED]", "[REDACTED]", "[REDACTED]", "[REDACTED]", "[REDACTED]", "[REDACTED]", "[REDACTED]", "[REDACTED]", "[REDACTED]"]
+"project"."requires-python" = "[REDACTED]"
+"project"."authors" = ["[REDACTED]", "[REDACTED]"]
+"project"."maintainers" = ["[REDACTED]"]
+"project"."description" = "[REDACTED]"
+"project"."readme" = "[REDACTED]"
+"project"."license"."file" = "[REDACTED]"
+"project"."classifiers" = ["[REDACTED]", "[REDACTED]", "[REDACTED]", "[REDACTED]"]
+"project"."urls"."Homepage" = "[REDACTED]"
+"project"."urls"."Documentation" = "[REDACTED]"
+"project"."urls"."Repository" = "[REDACTED]"
+"project"."urls"."Issues" = "[REDACTED]"
+"project"."scripts"."pwnagotchi_cli" = "[REDACTED]"

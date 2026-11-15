@@ -63,7 +63,9 @@ The existing desktop/autostart entry filenames remain `kali-cyberdeck.desktop` t
 
 ## Pwnagotchi installation files
 
-The repository now includes [14 existing host-integration files](pwnagotchi/README.md): installed wrapper, service units, TFT helpers, redacted configuration and the mode value. These are inspection snapshots and are never installed over the working setup. The protected runtime source and custom plugins are **still unavailable**, with the missing locations recorded explicitly. A [read-only exporter](scripts/snapshot_pwnagotchi.py) is included to collect them locally for review using existing host sudo access.
+The repository includes [423 reviewed source/documentation files and 14 host-integration snapshots](pwnagotchi/README.md) from the existing installation. This includes its core Python, 25 built-in plugin files, custom TFT code, service units, wrapper and redacted configuration. Original GPLv3 and nested library notices are retained separately from Verdant's MIT license.
+
+The first exporter omitted assets, translations, entry points and some auxiliary source/build files; this is an inspection snapshot, not a complete runnable distribution. See [the export review and corrected collection command](pwnagotchi/SOURCE-EXPORT.md). The configured custom-plugin directory does not exist on the exported host.
 
 ## Pwnagotchi preservation
 
@@ -98,7 +100,7 @@ python3 verify.py
 python3 verify.py --hardware
 ```
 
-Seventeen local tests passed in the initial implementation. The portable suite retains 17 tests; a fresh clone skips the host-local preservation-manifest check. CI runs software checks without real radios or service changes. **CI results do not certify a physical display or running Pwnagotchi installation.**
+Seventeen local tests passed in the initial implementation. The portable suite now contains 21 tests; a fresh clone skips the host-local preservation-manifest check. CI runs software checks without real radios or service changes. **CI results do not certify a physical display or running Pwnagotchi installation.**
 
 See [recorded evidence](docs/evidence/) and [TEST-RESULTS.md](TEST-RESULTS.md) for successful and unavailable checks. Runtime logs and preservation manifests are generated locally under `logs/` and are not committed.
 
@@ -110,4 +112,4 @@ See [recorded evidence](docs/evidence/) and [TEST-RESULTS.md](TEST-RESULTS.md) f
 - [Publication inventory and exclusions](docs/PUBLICATION.md)
 - [Previous dashboard source](docs/legacy/previous-app.py.txt), retained as historical text
 
-Use only within explicit authorization and agreed scope. This independent project is not endorsed by Kali Linux, Raspberry Pi, Pwnagotchi or other tool vendors. Its MIT license covers project material, not the licenses of external tools. Review those tools' terms before redistribution.
+Use only within explicit authorization and agreed scope. This independent project is not endorsed by Kali Linux, Raspberry Pi, Pwnagotchi or other tool vendors. Its MIT license covers Verdant project material; the included Pwnagotchi source retains its original GPLv3 and nested licenses, and external tools retain their own terms. Review those tools' terms before redistribution.

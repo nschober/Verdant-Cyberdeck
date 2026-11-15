@@ -1,37 +1,36 @@
 # Existing Pwnagotchi installation files
 
-This directory now contains **14 files captured from the existing host** and a provenance manifest. These are inspection/reference snapshots. They are not installed by Verdant Cyberdeck, and nothing here was written back to the working Pwnagotchi installation.
+This directory contains the **reviewed source exported from your existing installation**, alongside the previously captured host integration files. It is an inspection snapshot: Verdant's installer does not install, replace or execute these copies.
 
-| Directory | Included files |
+| Location | Contents |
 |---|---|
-| `host-snapshot/bin/` | Actual installed `pwnagotchi` executable wrapper |
-| `host-snapshot/systemd/` | Existing Pwnagotchi, dedicated Bettercap, mesh-peer, TFT launcher, terminal, recon and console service definitions |
-| `host-snapshot/tft/` | Actual existing `launcher.py`, `terminal.py` and `tft_view.py` from `/opt/tft-terminal` |
-| `host-snapshot/configuration/` | Redacted existing `config.toml` and `default.toml`, plus existing mode value |
-| `snapshot-manifest.json` | Original paths, snapshot hashes, redaction flags and explicitly unavailable locations |
+| `installed-source/` | 423 reviewed application/source/documentation files from `/root/pwnagotchi-modern`, including core Python, 25 built-in plugin files, hardware UI libraries and the custom TFT integration |
+| `host-snapshot/bin/` | Original installed `pwnagotchi` executable wrapper |
+| `host-snapshot/systemd/` | Seven actual Pwnagotchi/Bettercap/peer/TFT service definitions |
+| `host-snapshot/tft/` | Existing TFT launcher, terminal and shared view source |
+| `host-snapshot/configuration/` | Redacted existing config/default TOML and the mode value |
+| `snapshot-manifest.json` | Provenance for the 14 host snapshots |
+| `source-manifest.json` | Source paths, repository-copy hashes, transformations, export omissions and unavailable locations |
+| `SOURCE-EXPORT.md` | Export review, limitations and the command to collect remaining assets/entry points |
 
-Files other than the two `.redacted.toml` snapshots retain their captured bytes. The snapshot manifest hashes describe the repository copies, not the unredacted private configuration. The TOML snapshots preserve setting names and nonsensitive booleans/numbers; only explicitly allowed interface/language/display strings remain. Other strings and sensitive fields are replaced with `[REDACTED]`. They are **not deployable or restoration configurations**.
+## What was preserved
 
-The scripts/service definitions can start existing radios or stop competing TFT services when run by an operator. They are stored for inspection; Verdant's installer does not activate them. Do not copy these host-specific paths to a different installation without reviewing them.
+The reviewed source is taken from the user's existing custom installation, not substituted with an upstream clone. Original copyright notices and license text remain intact. Source files retain captured bytes except the declared configuration/credential redactions in the manifest. The original local export remains untouched under `backups/pwnagotchi-root-review/`.
 
-## Still missing: protected runtime source and plugins
+Configuration snapshots retain setting names, booleans/numbers and a small allowlist of interface/language/display strings. Other strings and sensitive values are redacted. The captured Bettercap caplet also has its API username/password removed, and credential/identity context in the host-status document is redacted. These copies are **not deployment or restoration configurations**.
 
-The actual customized runtime is under `/root/pwnagotchi-modern`; the custom-plugin directory is `/usr/local/share/pwnagotchi/custom-plugins`. Both are unreadable from the current execution sandbox. **The runtime source and custom plugins are not included yet.** No public upstream checkout has been substituted for your customized files, and no empty source placeholders are supplied.
+No installed source, configuration, service, network setting, key, learned data or plugin was changed to produce the repository snapshot. No captured installer, driver helper, service definition or radio script was run. Such scripts can change networking or display ownership if an operator explicitly executes them; Verdant does not activate the snapshot.
 
-To collect them without modifying the installation, run the included read-only exporter from a normal terminal on the Pi with your existing sudo access:
+## Limits of this capture
 
-```bash
-cd /home/kali/verdant-cyberdeck
-sudo /usr/bin/python3 scripts/snapshot_pwnagotchi.py \
-  --output /home/kali/verdant-cyberdeck/backups/pwnagotchi-root-review
-```
+The source exporter omitted the executable entry point, static assets, translations, fonts and some auxiliary Go/build files in its first version. Those omissions are listed in `source-manifest.json`. The captured `pyproject.toml` and configuration TOML are redacted, so this snapshot is not a complete runnable/buildable distribution. See `SOURCE-EXPORT.md` for the corrected exporter and a second, non-overwriting export command.
 
-The output path must not already exist. The exporter only reads the installed files and writes a new local review directory. It never runs Pwnagotchi, systemctl, apt, network commands or an installer. Files created through sudo are assigned back to the invoking user. Existing source files, configuration, plugins, network settings, learned data and services are not changed.
+The custom-plugin path `/usr/local/share/pwnagotchi/custom-plugins` does not exist on the exported host. This is the export's one unavailable location; it is not a claim that custom plugins were successfully copied. The 25 built-in plugin source files under the runtime are included.
 
-The source allowlist collects code, documentation, service text and license files while excluding virtualenvs, Git internals, runtime data, learned models, captures, keys and most non-source formats. TOML is redacted. Source files themselves can still contain embedded credentials, so the collected code stays under the Git-ignored `backups/` directory until it is reviewed. Export is deliberately not an automatic GitHub upload or a complete installation backup. Its manifest lists missing and excluded files.
+Bootstrap/virtualenv packages, IDE state, keys, captures, learned data and unreviewed secrets are not uploaded. A source snapshot is not a complete device backup.
 
-Once that export is available, the actual runtime/plugin source can be reviewed and added with its original licenses and notices. Missing-file status must not be replaced with a completeness claim before then.
+## Original licensing
 
-## Licensing
+The runtime's original **GNU GPL version 3** text is preserved at [`installed-source/LICENSE.md`](installed-source/LICENSE.md). The bundled DFRobot library's **LGPL version 2.1** notice remains at [`installed-source/pwnagotchi/ui/hw/libs/dfrobot/LICENSE`](installed-source/pwnagotchi/ui/hw/libs/dfrobot/LICENSE). The auxiliary peer-source directory retains its own original GPL text and other notices. Retained headers and notices must be reviewed for the corresponding files.
 
-The captured host-integration files are reference copies supplied from the existing installation. Existing copyright/license headers are retained. Their independent license status has not been established from an original upstream license file; the repository MIT license does not purport to relicense them. Protected third-party runtime/plugin source will need its own original licensing material when collected.
+**Verdant's root MIT license does not relicense this supplied Pwnagotchi source or its bundled libraries.** The separate host-integration snapshots retain any original headers; their independent upstream licensing has not been established beyond the provenance supplied by this installation.

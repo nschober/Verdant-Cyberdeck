@@ -1,6 +1,14 @@
 # Changelog
 
-## Unreleased — existing Pwnagotchi file snapshots
+## Unreleased — exported Pwnagotchi runtime source
+
+- Include 423 reviewed files from the existing customized runtime, including core Python, 25 built-in plugin files, custom TFT integration and original GPL/LGPL notices.
+- Redact caplet credentials and host security details; retain original source/license bytes elsewhere.
+- Keep the original export and bootstrap dependency environment local, and inventory omitted assets/entry points.
+- Correct the exporter to collect entry points, static assets, translations, Go/build files and packaging metadata while excluding bootstrap/IDE directories.
+- Record historical configuration-checksum drift without reverting the live installation.
+
+## Existing Pwnagotchi file snapshots
 
 - Include 14 accessible existing host-integration files, configuration snapshots with strict string/secret redaction, mode value and provenance manifest.
 - Identify protected runtime/custom-plugin source as missing instead of claiming a full Pwnagotchi backup.

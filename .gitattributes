@@ -5,3 +5,6 @@
 *.yml text eol=lf
 *.yaml text eol=lf
 *.png binary
+
+# Preserve supplied third-party source/license bytes, including original whitespace.
+pwnagotchi/installed-source/** -whitespace

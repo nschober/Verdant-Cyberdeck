@@ -10,7 +10,7 @@ The current Verdant application source, five shell entry points, Python manageme
 
 `docs/REPOSITORY-FILES.sha256` records the included source/document/assets checksums at preparation time, excluding itself to avoid a circular hash. `scripts/check_publication.py` checks tracked/staged files for common private-artifact types, private-key headers and selected credential formats. It is not a guarantee that all sensitive content is detected.
 
-The `pwnagotchi/` directory additionally contains 14 accessible files captured from the existing host plus a provenance manifest. Protected runtime and custom-plugin source is explicitly missing; `scripts/snapshot_pwnagotchi.py` collects available source into a Git-ignored local review bundle without changing the installation. It does not automatically publish unreviewed exports.
+The `pwnagotchi/` directory additionally contains 14 accessible files captured from the existing host plus a provenance manifest. The reviewed runtime source is now included under `pwnagotchi/installed-source/`; the configured custom-plugin path is absent and uncaptured assets/entry points are explicitly listed; `scripts/snapshot_pwnagotchi.py` collects available source into a Git-ignored local review bundle without changing the installation. It does not automatically publish unreviewed exports.
 
 ## Local-only material
 
@@ -36,3 +36,7 @@ No existing local backup is deleted. Keeping the repository private does not mak
 Before pushing, run software tests on an exported clean tree, shell/Python syntax checks, publication checks and a checksum review. Confirm that `logs/`, `backups/`, credentials and packet captures are not staged. Keep hardware gaps explicit. After connecting GitHub, create the private repository under the authenticated user, push `main`, confirm remote visibility and branch SHA, and inspect the first CI run before claiming GitHub CI passed.
 
 If authentication is unavailable, the local Git repository, commit and ZIP remain ready; no remote creation or CI success should be claimed.
+
+## Existing runtime source export
+
+The review includes 423 source/documentation files with original license notices, in addition to the earlier 14 host snapshots. The 478 captured bootstrap/IDE files remain local. The first exporter omitted 700 non-environment files; `pwnagotchi/source-manifest.json` lists them. The corrected exporter can collect the missing source/assets for another review. Do not describe this as a full runtime distribution or complete device backup.

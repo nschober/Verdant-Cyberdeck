@@ -1,0 +1,28 @@
+# Review-only snapshot. All unapproved strings and sensitive fields are redacted.
+# Not a deployment or restoration configuration; do not install over a working setup.
+"main"."name" = "[REDACTED]"
+"main"."iface" = "wlan1"
+"main"."mon_start_cmd" = "[REDACTED]"
+"main"."mon_stop_cmd" = "[REDACTED]"
+"main"."plugins"."auto-update"."enabled" = false
+"main"."plugins"."fix_services"."enabled" = false
+"main"."plugins"."grid"."enabled" = true
+"main"."plugins"."grid"."report" = false
+"main"."plugins"."led"."enabled" = false
+"personality"."deauth" = true
+"personality"."associate" = true
+"personality"."advertise" = true
+"ai"."path" = "[REDACTED]"
+"ai"."params"."device" = "[REDACTED]"
+"fs"."memory"."enabled" = false
+"bettercap"."hostname" = "[REDACTED]"
+"bettercap"."port" = 8081
+"bettercap"."username" = "[REDACTED]"
+"bettercap"."password" = "[REDACTED]"
+"bettercap"."handshakes" = "[REDACTED]"
+"ui"."display"."enabled" = true
+"ui"."display"."type" = "ili9488"
+"ui"."display"."device" = "/dev/fb1"
+"ui"."display"."rotation" = 0
+"ui"."fps" = 1.0
+"ui"."web"."address" = "[REDACTED]"

@@ -20,9 +20,9 @@ REDACTED = '[REDACTED]'
 SAFE_STRING_KEYS = {'main.iface', 'main.mode', 'main.lang', 'ui.display.type', 'ui.display.device'}
 SECRET_KEYS = re.compile(r'password|passwd|secret|token|api.?key|private.?key|username|email|fingerprint|whitelist|blacklist|ssid|bssid|(^|\.)mac($|\.)', re.I)
 SOURCE_ROOTS = {'source': Path('/root/pwnagotchi-modern'), 'custom-plugins': Path('/usr/local/share/pwnagotchi/custom-plugins')}
-EXCLUDED_DIRS = {'.git', '.venv', 'venv', '__pycache__', 'node_modules', '.cache', 'logs', 'log', 'handshakes', 'captures', 'data', 'peers', 'sessions', 'models'}
-SOURCE_SUFFIXES = {'.py', '.sh', '.md', '.rst', '.txt', '.toml', '.yml', '.yaml', '.service'}
-SPECIAL_NAMES = {'LICENSE', 'LICENCE', 'COPYING', 'NOTICE', 'AUTHORS', 'Makefile', 'MANIFEST.in', '.gitignore'}
+EXCLUDED_DIRS = {'.git', '.venv', 'venv', '.bootstrap', '.idea', 'site-packages', '__pycache__', 'node_modules', '.cache', 'logs', 'log', 'handshakes', 'captures', 'data', 'peers', 'sessions', 'models'}
+SOURCE_SUFFIXES = {'.py', '.sh', '.md', '.rst', '.txt', '.toml', '.yml', '.yaml', '.service', '.go', '.mod', '.sum', '.html', '.css', '.js', '.svg', '.po', '.pot', '.mo', '.png', '.bmp', '.gif', '.ttf', '.hcl', '.example'}
+SPECIAL_NAMES = {'LICENSE', 'LICENCE', 'COPYING', 'NOTICE', 'AUTHORS', 'Makefile', 'MANIFEST.in', '.gitignore', 'package.json', 'package-lock.json'}
 HOST_FILES = {
     'bin/pwnagotchi': Path('/usr/local/bin/pwnagotchi'),
     **{f'systemd/{name}.service': Path('/etc/systemd/system') / f'{name}.service' for name in ('pwnagotchi', 'pwnagotchi-bettercap', 'pwngrid-peer', 'tft-launcher', 'tft-terminal', 'tft-recon', 'tft-console')},
@@ -110,13 +110,14 @@ def collect(output, source_roots=None, host_files=None):
                         except (OSError, UnicodeError, ValueError):
                             report['excluded'].append({'source': str(item), 'reason': 'not a readable text caplet'})
                             continue
-                    if item.suffix not in SOURCE_SUFFIXES and name not in SPECIAL_NAMES and not name.startswith(('LICENSE.', 'LICENCE.', 'COPYING.')) and not caplet:
+                    entrypoint = item.relative_to(source).as_posix() == 'bin/pwnagotchi'
+                    if item.suffix not in SOURCE_SUFFIXES and name not in SPECIAL_NAMES and not name.startswith(('LICENSE.', 'LICENCE.', 'COPYING.')) and not caplet and not entrypoint:
                         report['excluded'].append({'source': str(item), 'reason': 'not allowlisted source or license text'})
                         continue
                     relative = Path(label) / item.relative_to(source)
                     if caplet:
                         relative = relative.with_suffix('.cap.txt')
-                    save(relative, item, item.suffix == '.toml')
+                    save(relative, item, item.suffix == '.toml' and name != 'pyproject.toml')
         except (OSError, ValueError) as exc:
             report['unavailable'].append({'source': str(source), 'reason': str(exc)})
     (output / 'manifest.json').write_text(json.dumps(report, indent=2) + '\n')
