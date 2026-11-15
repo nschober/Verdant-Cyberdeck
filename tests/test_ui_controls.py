@@ -113,7 +113,7 @@ import os
 base=Path(os.environ['BRIDGE_TEST_DIR'])
 real=Path
 os.umask(0o077)
-with patch('pathlib.Path',side_effect=lambda p:base/'state' if str(p)=='/run/verdant-cyberdeck' else real(p)),patch('os.chown'),patch('os.fchown'):
+with patch('pathlib.Path',side_effect=lambda p:base/'state' if str(p)=='/run/verdant-cyberdeck' else real(p)),patch('os.chown'),patch('os.fchown'),patch('grp.getgrnam',return_value=type('Group',(),{'gr_gid':os.getgid()})()):
  d=Display();d._on_view_rendered(Image.new('RGB',(480,320),'green'))
  assert d.called
  assert (base/'state').stat().st_mode & 0o777 == 0o750
