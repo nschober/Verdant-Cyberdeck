@@ -1,5 +1,10 @@
 # Verification results
 
+## TFT startup/AUTO fix
+
+The redesigned splash renders at 480×320 and was visually reviewed. The patch dry-run recognizes the actual installed TFT chooser and identifies the current mode as manual. Seven new behavioral tests pass. The complete portable suite now contains 28 tests, with the expected host-only historical preservation test skipped on a clean export. No host apply has been performed from the restricted execution session: system-bus/device/root access remains unavailable. A normal-host apply, actual TFT observation and Pwnagotchi AUTO-state check are still required.
+
+
 ## Runtime source-export update
 
 The host-local historical preservation check now detects configuration checksum drift since the original baseline. The source/configuration files were not written by this repository update, and the current redacted setting values match the user's export. The baseline is retained unchanged and the observed drift is not suppressed or described as a pass. A new local comparison records checksums for the remainder of this read-only review; it is not a replacement for the historical evidence.

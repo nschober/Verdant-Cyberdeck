@@ -9,6 +9,7 @@ import time
 from PIL import Image, ImageDraw, ImageFont
 from . import pwnagotchi, wifi_recon, bluetooth, system_status, launchers
 from .backend import run, installed
+from .splash import render_splash
 
 BG, PANEL, GREEN, WHITE = '#07140f', '#133326', '#67fa9f', '#ebfff2'
 FONT = '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'
@@ -211,12 +212,8 @@ class Dashboard:
         draw=ImageDraw.Draw(im)
         fonts={size:ImageFont.truetype(FONT,size) for size in (11,12,14,17)}
         if time.monotonic()<self.splash_until:
-            draw.rounded_rectangle((8,8,471,311),radius=14,outline=GREEN,width=2)
-            draw.text((25,25),'VERDANT CYBERDECK',font=fonts[17],fill=GREEN)
-            for i,label in enumerate(('Pwnagotchi  /  Wi-Fi Recon','Network Recon  /  Wireless Auditing','Bluetooth  /  Packet Analysis','Web Security  /  Metasploit')):
-                draw.text((25,86+40*i),label,font=fonts[14],fill=WHITE)
-            draw.text((25,280),'PASSIVE STARTUP  •  AUTHORIZED TESTING',font=fonts[12],fill=GREEN)
-            return im
+            remaining=self.splash_until-time.monotonic()
+            return render_splash(1.0 if remaining>10 else 1.0-remaining/.8)
         draw.text((8,5),self.title[:36],font=fonts[17],fill=GREEN)
         # Keep three short status lines inside the header.
         status=self.status.splitlines()

@@ -41,7 +41,7 @@ def configuration():
         rows += ['\nEnabled plugins: ' + ', '.join(k for k,v in plugins.items() if isinstance(v,dict) and v.get('enabled'))]
         mode = Path('/etc/pwnagotchi/mode')
         rows += ['Mode file: ' + (mode.read_text().strip() if mode.exists() else 'absent'),
-                 'Available modes: not verified; launch script is protected. Modes are not changed here.',
+                 'Captured host launcher supports manual and auto. Mode is shown above; runtime health must be checked separately.',
                  'Learned data, plugins, keys, and network settings remain managed by the existing installation.']
         return '\n'.join(rows)
     except (OSError, ValueError) as exc:

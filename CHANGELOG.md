@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased — native TFT splash and explicit AUTO mode
+
+- Replace the plain splash with original Verdant branding, circuit artwork and readable category labels.
+- Add a targeted, dry-run-first patch for the existing native TFT chooser, including active-owner adoption and splash-input suppression.
+- Add verified backups/rollback and explicit AUTO-mode selection using the existing Pwnagotchi launcher mechanism.
+- Preserve boot enablement, drivers, original chooser service selection and inactive Pwnagotchi state.
+- Add seven behavioral tests; physical application requires a normal host terminal.
+
+
 ## Unreleased — exported Pwnagotchi runtime source
 
 - Include 423 reviewed files from the existing customized runtime, including core Python, 25 built-in plugin files, custom TFT integration and original GPL/LGPL notices.

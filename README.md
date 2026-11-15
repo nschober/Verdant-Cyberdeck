@@ -61,6 +61,16 @@ After installation, `~/.local/bin/verdant-cyberdeck` is the preferred launcher. 
 
 The existing desktop/autostart entry filenames remain `kali-cyberdeck.desktop` to avoid duplicate startup entries. Their displayed name is Verdant Cyberdeck. On a 480×320 desktop the interface is borderless; on larger desktops it is a fixed-size window. Escape and Exit close the dashboard without stopping independently running tools or services.
 
+## TFT splash and AUTO-mode fix
+
+The existing native TFT chooser uses its own startup path. The redesigned artwork now has a [dedicated, backed-up integration patch](docs/TFT-STARTUP.md) for that actual chooser. The same helper can select the existing Pwnagotchi launcher's AUTO operating mode when explicitly requested; it does not enable boot activation or start an inactive Pwnagotchi.
+
+```bash
+sudo /usr/bin/python3 /home/kali/verdant-cyberdeck/scripts/integrate_tft.py --apply --pwn-mode auto
+```
+
+Run that command from a normal Pi terminal after reviewing the linked scope and rollback procedure. This sandbox cannot apply root/systemd changes or certify physical TFT operation.
+
 ## Pwnagotchi installation files
 
 The repository includes [423 reviewed source/documentation files and 14 host-integration snapshots](pwnagotchi/README.md) from the existing installation. This includes its core Python, 25 built-in plugin files, custom TFT code, service units, wrapper and redacted configuration. Original GPLv3 and nested library notices are retained separately from Verdant's MIT license.
