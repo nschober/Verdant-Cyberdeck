@@ -1,0 +1,93 @@
+{
+  "syntax": {
+    "passed": true,
+    "exit": 0,
+    "output": ""
+  },
+  "shell install.sh": {
+    "passed": true,
+    "exit": 0,
+    "output": ""
+  },
+  "shell autostart.sh": {
+    "passed": true,
+    "exit": 0,
+    "output": ""
+  },
+  "shell install-tools.sh": {
+    "passed": true,
+    "exit": 0,
+    "output": ""
+  },
+  "shell run.sh": {
+    "passed": true,
+    "exit": 0,
+    "output": ""
+  },
+  "shell uninstall.sh": {
+    "passed": true,
+    "exit": 0,
+    "output": ""
+  },
+  "unit tests": {
+    "passed": true,
+    "exit": 0,
+    "output": "test_all_menu_actions_and_bounds (test_integration.DashboardTests.test_all_menu_actions_and_bounds) ... ok\ntest_long_text_is_inside_view (test_integration.DashboardTests.test_long_text_is_inside_view) ... ok\ntest_passive_startup (test_integration.DashboardTests.test_passive_startup) ... ok\ntest_service_requires_confirmation (test_integration.DashboardTests.test_service_requires_confirmation) ... ok\ntest_stale_async_results_ignored (test_integration.DashboardTests.test_stale_async_results_ignored) ... ok\ntest_configuration_redacts_credentials (test_integration.IntegrationTests.test_configuration_redacts_credentials) ... ok\ntest_framebuffer_refuses_unknown_owner (test_integration.IntegrationTests.test_framebuffer_refuses_unknown_owner) ... ok\ntest_imports (test_integration.IntegrationTests.test_imports) ... ok\ntest_launcher_preserves_argument_boundaries (test_integration.IntegrationTests.test_launcher_preserves_argument_boundaries) ... ok\ntest_lifecycle_restore_previous_entries (test_integration.IntegrationTests.test_lifecycle_restore_previous_entries) ... ok\ntest_missing_tool_error (test_integration.IntegrationTests.test_missing_tool_error) ... ok\ntest_no_new_pwnagotchi_copy_launcher (test_integration.IntegrationTests.test_no_new_pwnagotchi_copy_launcher) ... ok\ntest_preserved_files (test_integration.IntegrationTests.test_preserved_files) ... ok\ntest_scan_failure_is_reported (test_integration.IntegrationTests.test_scan_failure_is_reported) ... ok\ntest_service_control_targets_existing_unit (test_integration.IntegrationTests.test_service_control_targets_existing_unit) ... ok\ntest_status_denied_is_unknown (test_integration.IntegrationTests.test_status_denied_is_unknown) ... ok\ntest_wifi_escaping_sort_fields (test_integration.IntegrationTests.test_wifi_escaping_sort_fields) ... ok\n\n----------------------------------------------------------------------\nRan 17 tests in 1.398s\n\nOK"
+  },
+  "offscreen startup": {
+    "passed": true,
+    "exit": 0,
+    "output": "Offscreen page rendering passed; hardware not exercised."
+  },
+  "packages": {
+    "passed": true,
+    "exit": 0,
+    "output": "Repository package checks for arm64\npython3-tk: installed\npython3-pil: installed\npython3-pil.imagetk: installed\npython3-evdev: installed\nxterm: installed\niw: installed\nnetwork-manager: installed\nnmap: installed\nbettercap: installed\naircrack-ng: installed\nwifite: installed\nkismet: installed\nbluez: installed\ntcpdump: installed\ntshark: installed\nmetasploit-framework: installed\nnikto: installed\ngobuster: installed\nsqlmap: installed\ntmux: installed\nhtop: installed"
+  },
+  "autostart": {
+    "passed": true,
+    "exit": 0,
+    "output": "enabled"
+  },
+  "live service status": {
+    "passed": false,
+    "exit": 1,
+    "output": "Failed to connect to system scope bus via local transport: Operation not permitted (consider using --machine=<user>@.host --user to connect to bus of other user)"
+  },
+  "wireless detection": {
+    "passed": false,
+    "exit": 1,
+    "output": "Failed to connect to generic netlink."
+  },
+  "Bluetooth detection": {
+    "passed": false,
+    "exit": -6,
+    "output": "dbus[79]: arguments to dbus_connection_get_object_path_data() were incorrect, assertion \"connection != NULL\" failed in file ../../dbus/dbus-connection.c line 5974.\nThis is normally a bug in some application using the D-Bus library.\n\n  D-Bus not built with -rdynamic so unable to print a backtrace"
+  },
+  "Wi-Fi scan": {
+    "passed": false,
+    "exit": 1,
+    "output": "Error: Could not create NMClient object: Could not connect: Operation not permitted."
+  },
+  "Bluetooth discovery": {
+    "passed": false,
+    "exit": -6,
+    "output": "dbus[84]: arguments to dbus_connection_get_object_path_data() were incorrect, assertion \"connection != NULL\" failed in file ../../dbus/dbus-connection.c line 5974.\nThis is normally a bug in some application using the D-Bus library.\n\n  D-Bus not built with -rdynamic so unable to print a backtrace"
+  },
+  "graphical startup": {
+    "passed": null,
+    "output": "Unavailable: no accessible graphical session. Xvfb also cannot bind a socket in this sandbox."
+  },
+  "physical TFT and touch": {
+    "passed": null,
+    "output": "Unverified. Device nodes unavailable in the execution sandbox; existing TFT owners preserved."
+  },
+  "Pwnagotchi independence": {
+    "passed": null,
+    "output": "Service launch has no dashboard dependency; runtime health cannot be confirmed without host system bus access. Service was not started/stopped for tests."
+  },
+  "preservation": {
+    "passed": true,
+    "output": "SHA-256 of existing Pwnagotchi configuration and service units."
+  }
+}

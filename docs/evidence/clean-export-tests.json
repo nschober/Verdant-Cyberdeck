@@ -1,0 +1,18 @@
+{
+  "unit tests": {
+    "exit": 0,
+    "output": "test_all_menu_actions_and_bounds (test_integration.DashboardTests.test_all_menu_actions_and_bounds) ... ok\ntest_long_text_is_inside_view (test_integration.DashboardTests.test_long_text_is_inside_view) ... ok\ntest_passive_startup (test_integration.DashboardTests.test_passive_startup) ... ok\ntest_service_requires_confirmation (test_integration.DashboardTests.test_service_requires_confirmation) ... ok\ntest_stale_async_results_ignored (test_integration.DashboardTests.test_stale_async_results_ignored) ... ok\ntest_configuration_redacts_credentials (test_integration.IntegrationTests.test_configuration_redacts_credentials) ... ok\ntest_framebuffer_refuses_unknown_owner (test_integration.IntegrationTests.test_framebuffer_refuses_unknown_owner) ... ok\ntest_imports (test_integration.IntegrationTests.test_imports) ... ok\ntest_launcher_preserves_argument_boundaries (test_integration.IntegrationTests.test_launcher_preserves_argument_boundaries) ... ok\ntest_lifecycle_restore_previous_entries (test_integration.IntegrationTests.test_lifecycle_restore_previous_entries) ... ok\ntest_missing_tool_error (test_integration.IntegrationTests.test_missing_tool_error) ... ok\ntest_no_new_pwnagotchi_copy_launcher (test_integration.IntegrationTests.test_no_new_pwnagotchi_copy_launcher) ... ok\ntest_preserved_files (test_integration.IntegrationTests.test_preserved_files) ... skipped 'Host-local preservation manifest is not included in a fresh clone'\ntest_scan_failure_is_reported (test_integration.IntegrationTests.test_scan_failure_is_reported) ... ok\ntest_service_control_targets_existing_unit (test_integration.IntegrationTests.test_service_control_targets_existing_unit) ... ok\ntest_status_denied_is_unknown (test_integration.IntegrationTests.test_status_denied_is_unknown) ... ok\ntest_wifi_escaping_sort_fields (test_integration.IntegrationTests.test_wifi_escaping_sort_fields) ... ok\n\n----------------------------------------------------------------------\nRan 17 tests in 1.260s\n\nOK (skipped=1)\n"
+  },
+  "syntax": {
+    "exit": 0,
+    "output": ""
+  },
+  "offscreen startup": {
+    "exit": 0,
+    "output": "Offscreen page rendering passed; hardware not exercised.\n"
+  },
+  "shell syntax": {
+    "exit": 0,
+    "output": "All five entry-point shell scripts passed bash -n."
+  }
+}

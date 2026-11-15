@@ -1,0 +1,27 @@
+# Host-local state and rollback records. See docs/PUBLICATION.md.
+/logs/
+/backups/
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+id_rsa*
+id_ed25519*
+*.pcap
+*.pcapng
+*.cap
+*.22000
+*.hc22000
+*.hccap*
+core
+core.*
+*.zip
+*.tar.gz
+.DS_Store
+.idea/
+.vscode/

@@ -1,0 +1,277 @@
+import tkinter as tk
+import subprocess as sp
+import shutil
+from tkinter import messagebox
+
+BG = '#07140f'
+PANEL = '#123222'
+GREEN = '#67fa9f'
+WHITE = '#f2fff4'
+
+APPS = {
+    'NETWORK': [
+        ('Nmap', 'nmap'),
+        ('Bettercap', 'bettercap'),
+        ('Metasploit', 'msfconsole')
+    ],
+    'WIRELESS': [
+        ('Aircrack-ng', 'aircrack-ng'),
+        ('Wifite', 'wifite'),
+        ('Kismet', 'kismet')
+    ],
+    'BLUETOOTH': [
+        ('Bluetoothctl', 'bluetoothctl')
+    ],
+    'TRAFFIC / WEB': [
+        ('tcpdump', 'tcpdump'),
+        ('TShark', 'tshark'),
+        ('Nikto', 'nikto'),
+        ('Gobuster', 'gobuster'),
+        ('SQLmap', 'sqlmap')
+    ],
+    'SYSTEM': [
+        ('tmux', 'tmux'),
+        ('htop', 'htop')
+    ]
+}
+
+class App:
+    def __init__(self, r):
+        self.r = r
+        r.title('Kali Cyberdeck 3.5')
+        r.geometry('480x320')
+        r.configure(bg=BG)
+        r.attributes('-fullscreen', True)
+        r.bind('<Escape>', lambda e: r.attributes('-fullscreen', False))
+        self.screen = None
+        self.splash()
+
+    def reset(self, title, back=None):
+        if self.screen:
+            self.screen.destroy()
+
+        self.screen = tk.Frame(self.r, bg=BG)
+        self.screen.pack(fill='both', expand=True)
+
+        bar = tk.Frame(self.screen, bg=BG)
+        bar.pack(fill='x', padx=7, pady=5)
+
+        if back:
+            self.btn(bar, 'BACK', back, 7, 1).pack(side='left')
+
+        tk.Label(
+            bar, text=title, bg=BG, fg=GREEN,
+            font=('DejaVu Sans', 13, 'bold')
+        ).pack(side='left', padx=7)
+
+        if back:
+            self.btn(bar, 'HOME', self.home, 7, 1).pack(side='right')
+
+    def btn(self, parent, title, fn, w=18, h=2):
+        return tk.Button(
+            parent,
+            text=title,
+            command=fn,
+            width=w,
+            height=h,
+            font=('DejaVu Sans', 10, 'bold'),
+            bg=PANEL,
+            fg=GREEN,
+            activebackground=GREEN,
+            activeforeground=BG,
+            relief='flat'
+        )
+
+    def splash(self):
+        self.reset('KALI CYBERDECK 3.5')
+
+        lines = [
+            'PWNAGOTCHI  •  WI-FI RECON',
+            'NETWORK / WIRELESS / BLUETOOTH',
+            'PACKETS / WEB / METASPLOIT'
+        ]
+
+        for line in lines:
+            tk.Label(
+                self.screen, text=line, bg=BG, fg=GREEN,
+                font=('DejaVu Sans', 12, 'bold')
+            ).pack(pady=16)
+
+        self.r.after(1600, self.home)
+
+    def home(self):
+        self.reset('KALI CYBERDECK 3.5')
+
+        grid = tk.Frame(self.screen, bg=BG)
+        grid.pack(fill='both', expand=True, padx=8)
+
+        items = [
+            ('WI-FI RECON', self.wifi),
+            ('PWNAGOTCHI', self.pwn),
+            ('NETWORK', lambda: self.menu('NETWORK')),
+            ('WIRELESS', lambda: self.menu('WIRELESS')),
+            ('BLUETOOTH', lambda: self.menu('BLUETOOTH')),
+            ('TRAFFIC / WEB', lambda: self.menu('TRAFFIC / WEB'))
+        ]
+
+        for i, (name, fn) in enumerate(items):
+            self.btn(grid, name, fn).grid(
+                row=i//2, column=i%2,
+                padx=6, pady=5, sticky='nsew'
+            )
+
+        for i in range(2):
+            grid.grid_columnconfigure(i, weight=1)
+
+        foot = tk.Frame(self.screen, bg=BG)
+        foot.pack(fill='x', padx=10, pady=5)
+
+        self.btn(
+            foot, 'SYSTEM',
+            lambda: self.menu('SYSTEM'), 8, 1
+        ).pack(side='left')
+
+        self.btn(
+            foot, 'QUIT', self.r.destroy, 8, 1
+        ).pack(side='right')
+
+    def menu(self, name):
+        self.reset(name, self.home)
+
+        grid = tk.Frame(self.screen, bg=BG)
+        grid.pack(fill='both', expand=True, padx=10, pady=10)
+
+        for i, (title, cmd) in enumerate(APPS[name]):
+            status = '' if shutil.which(cmd) else ' [MISSING]'
+            self.btn(
+                grid, title + status,
+                lambda x=cmd: self.launch(x)
+            ).grid(row=i//2, column=i%2, padx=5, pady=7)
+
+    def launch(self, exe):
+        path = shutil.which(exe)
+
+        if not path:
+            messagebox.showerror(
+                'Not installed',
+                exe + ' is not installed.'
+            )
+            return
+
+        term = shutil.which('xterm')
+
+        if not term:
+            messagebox.showerror(
+                'Terminal missing', 'Install xterm.'
+            )
+            return
+
+        try:
+            sp.Popen(
+                [term, '-fa', 'DejaVu Sans Mono',
+                 '-fs', '9', '-e', path],
+                start_new_session=True
+            )
+        except OSError as error:
+            messagebox.showerror('Launch failed', str(error))
+
+    def wifi(self):
+        self.reset('WI-FI RECON', self.home)
+
+        self.btn(
+            self.screen, 'SCAN ACCESS POINTS',
+            self.scan, 20, 1
+        ).pack(pady=4)
+
+        self.list = tk.Listbox(
+            self.screen, bg=PANEL, fg=WHITE,
+            font=('DejaVu Sans Mono', 9), border=0
+        )
+
+        self.list.pack(
+            fill='both', expand=True, padx=9, pady=5
+        )
+
+        self.list.insert('end', 'SSID              SIGNAL SECURITY')
+        self.list.insert('end', 'Tap SCAN to discover access points')
+
+    def scan(self):
+        self.list.delete(0, 'end')
+
+        if not shutil.which('nmcli'):
+            self.list.insert('end', 'NetworkManager unavailable')
+            return
+
+        try:
+            p = sp.run(
+                ['nmcli', '-t', '-f', 'SSID,SIGNAL,SECURITY',
+                 'dev', 'wifi', 'list', '--rescan', 'yes'],
+                capture_output=True, text=True, timeout=20
+            )
+        except (OSError, sp.TimeoutExpired) as error:
+            self.list.insert('end', str(error))
+            return
+
+        if p.returncode:
+            self.list.insert('end', p.stderr.strip()[:100])
+            return
+
+        self.list.insert('end', 'SSID               SIGNAL SECURITY')
+
+        for line in p.stdout.splitlines():
+            fields = []
+            current = ''
+            escaped = False
+
+            for c in line:
+                if escaped:
+                    current += c
+                    escaped = False
+                elif c == '\\':
+                    escaped = True
+                elif c == ':':
+                    fields.append(current)
+                    current = ''
+                else:
+                    current += c
+
+            fields.append(current)
+
+            if len(fields) >= 3:
+                ssid, signal, security = fields[:3]
+                ssid = ssid or '<hidden>'
+
+                self.list.insert(
+                    'end',
+                    f'{ssid[:19]:19} {signal:>3}% {security[:12]}'
+                )
+
+    def pwn(self):
+        self.reset('PWNAGOTCHI', self.home)
+
+        exe = shutil.which('pwnagotchi')
+
+        lines = [
+            f'Installation: {exe or "not detected"}',
+            'Original Pwnagotchi targets Pi Zero W + eInk.',
+            'Pi 400 / ILI9488 TFT is not officially supported.',
+            'A separate compatible setup is required.',
+            'Wireless attacks are not started automatically.'
+        ]
+
+        for line in lines:
+            tk.Label(
+                self.screen, text=line, bg=BG, fg=WHITE,
+                font=('DejaVu Sans', 10)
+            ).pack(pady=10)
+
+        if exe:
+            self.btn(
+                self.screen, 'OPEN',
+                lambda: self.launch('pwnagotchi'),
+                12, 1
+            ).pack()
+
+root = tk.Tk()
+App(root)
+root.mainloop()

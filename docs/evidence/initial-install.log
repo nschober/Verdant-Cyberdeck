@@ -1,0 +1,29 @@
+OS: Kali GNU/Linux Rolling; machine: aarch64; packages: arm64
+Graphics session: DISPLAY=unset, WAYLAND_DISPLAY=unset, XDG_SESSION_TYPE=tty
+fb1: ili9488drmfb 480,320
+fb0: vc4drmfb 1920,1080
+Repository package checks for arm64
+python3-tk: installed
+python3-pil: installed
+python3-pil.imagetk: installed
+python3-evdev: installed
+xterm: installed
+iw: installed
+network-manager: installed
+nmap: installed
+bettercap: installed
+aircrack-ng: installed
+wifite: installed
+kismet: installed
+bluez: installed
+tcpdump: installed
+tshark: installed
+metasploit-framework: installed
+nikto: installed
+gobuster: installed
+sqlmap: installed
+tmux: installed
+htop: installed
+Offscreen page rendering passed; hardware not exercised.
+Desktop startup unavailable in this terminal. Offscreen startup passed; physical TFT is NOT verified.
+User installation complete. Existing Pwnagotchi and hardware configuration preserved.

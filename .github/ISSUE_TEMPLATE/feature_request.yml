@@ -1,0 +1,14 @@
+name: Feature request
+description: Propose an improvement with a clear use case.
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem and intended behavior
+    validations:
+      required: true
+  - type: textarea
+    id: boundaries
+    attributes:
+      label: Hardware, permissions and preservation considerations
+      description: Explain how this keeps startup passive and preserves working Pwnagotchi, network and display configuration.

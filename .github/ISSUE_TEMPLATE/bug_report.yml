@@ -1,0 +1,25 @@
+name: Bug report
+description: Report a reproducible software or hardware-integration problem.
+body:
+  - type: markdown
+    attributes:
+      value: "Do not include credentials, captures, private configuration or unredacted host logs. Use SECURITY.md for sensitive reports."
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Revision, OS, architecture, display backend and whether this was physical hardware or an offscreen test.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps and observed behavior
+      description: Include expected behavior and a minimal authorized reproduction with synthetic data.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Redacted evidence and limitations
+      description: Distinguish failed checks from unavailable hardware or permissions.

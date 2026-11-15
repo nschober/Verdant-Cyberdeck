@@ -1,0 +1,4 @@
+[Unit]
+Description=Synthetic existing-service fixture; never install
+[Service]
+ExecStart=/nonexistent/test-only-pwnagotchi

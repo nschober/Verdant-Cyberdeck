@@ -1,0 +1,7 @@
+# Synthetic test values. No user configuration or real credentials.
+main.iface = "wlan-test"
+ai.enabled = true
+ui.display.enabled = true
+ui.display.type = "ili9488"
+ui.web.password = "fixture-secret-do-not-display"
+main.plugins.fixture.enabled = true
