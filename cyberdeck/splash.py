@@ -6,6 +6,7 @@ from PIL import Image, ImageDraw, ImageFont
 FONT = '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'
 BOLD = '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf'
 MONO = '/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf'
+SPLASH_SECONDS = 4.0
 
 @lru_cache(maxsize=1)
 def _artwork():

@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased — persistent native TFT dashboard
+
+- Connect the actual six-button dashboard to the existing framebuffer/input supervisor instead of only replacing its transient splash.
+- Preserve existing service handoff, F1/F2 controls and AUTO mode, and add F3 splash replay.
+- Set startup/replay splash duration to four seconds, timed from the first ready native frame.
+- Route interactive tools through the existing kali-user terminal with protected FIFO input.
+- Install compiled root-owned runtime copies, back up every changed file, and report/log the current screen owner.
+- Add native adapter and simulated-supervisor tests; keep physical observation and existing Pwnagotchi plugin errors explicitly unverified.
+
+
 ## Unreleased — native TFT splash and explicit AUTO mode
 
 - Replace the plain splash with original Verdant branding, circuit artwork and readable category labels.

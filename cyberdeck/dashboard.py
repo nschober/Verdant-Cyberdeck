@@ -9,7 +9,7 @@ import time
 from PIL import Image, ImageDraw, ImageFont
 from . import pwnagotchi, wifi_recon, bluetooth, system_status, launchers
 from .backend import run, installed
-from .splash import render_splash
+from .splash import render_splash, SPLASH_SECONDS
 
 BG, PANEL, GREEN, WHITE = '#07140f', '#133326', '#67fa9f', '#ebfff2'
 FONT = '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'
@@ -21,7 +21,8 @@ class Button:
     action: object
 
 class Dashboard:
-    def __init__(self, close=lambda:None, framebuffer=False):
+    def __init__(self, close=lambda:None, framebuffer=False, log_path=None):
+        self.log_path = Path(log_path) if log_path else Path(__file__).resolve().parents[1]/'logs/cyberdeck.log'
         self.close = close
         self.framebuffer = framebuffer
         self.pool = ThreadPoolExecutor(max_workers=3)
@@ -35,7 +36,7 @@ class Dashboard:
         self.next_status = 0
         self.status_busy = False
         self.busy = False
-        self.splash_until = time.monotonic() + .8
+        self.splash_until = time.monotonic() + SPLASH_SECONDS
         self.items = None
         self.body = ''
         self.home()
@@ -170,7 +171,7 @@ class Dashboard:
             ('SYSTEM INFO',lambda:self.job('SYSTEM INFORMATION',system_status.information)),
             ('INTERFACES / IP',lambda:self.job('NETWORK INTERFACES',lambda:run(['ip','address']).output)),
             ('DISPLAY INFO',lambda:self.text('DISPLAY INFORMATION',system_status.graphics()+'\nDesktop output and framebuffer are separate. No display configuration is changed.')),
-            ('APP LOGS',lambda:self.text('APPLICATION LOG',Path(__file__).resolve().parents[1].joinpath('logs/cyberdeck.log').read_text()[-20000:])),
+            ('APP LOGS',lambda:self.text('APPLICATION LOG',self.log_path.read_text()[-20000:])),
             ('TOOL STATUS',lambda:self.text('INSTALLED TOOLS','\n'.join(f'{name}: {installed(exe) or "MISSING"}' for group in launchers.TOOLS.values() for name,exe,_ in group)))])
 
     def tick(self):
@@ -213,7 +214,7 @@ class Dashboard:
         fonts={size:ImageFont.truetype(FONT,size) for size in (11,12,14,17)}
         if time.monotonic()<self.splash_until:
             remaining=self.splash_until-time.monotonic()
-            return render_splash(1.0 if remaining>10 else 1.0-remaining/.8)
+            return render_splash(1.0 if remaining>10 else 1.0-remaining/SPLASH_SECONDS)
         draw.text((8,5),self.title[:36],font=fonts[17],fill=GREEN)
         # Keep three short status lines inside the header.
         status=self.status.splitlines()

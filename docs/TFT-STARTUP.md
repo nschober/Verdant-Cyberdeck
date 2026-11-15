@@ -1,5 +1,7 @@
 # TFT startup artwork and Pwnagotchi AUTO operation
 
+This page records the v1 splash/mode integration. **Use [the v2 native dashboard guide](TFT-NATIVE-DASHBOARD.md) for the current implementation.** V2 replaces the legacy menu renderer with the six-button dashboard; the earlier note about retaining only the legacy menu describes v1.
+
 ## Confirmed causes
 
 The current TFT is owned by `/opt/tft-terminal/launcher.py`, started by the existing `tft-launcher.service`. Desktop/XDG startup starts a different application on the graphical desktop. Changing Verdant's desktop splash image alone does not change that native TFT chooser.

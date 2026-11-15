@@ -61,15 +61,19 @@ After installation, `~/.local/bin/verdant-cyberdeck` is the preferred launcher. 
 
 The existing desktop/autostart entry filenames remain `kali-cyberdeck.desktop` to avoid duplicate startup entries. Their displayed name is Verdant Cyberdeck. On a 480×320 desktop the interface is borderless; on larger desktops it is a fixed-size window. Escape and Exit close the dashboard without stopping independently running tools or services.
 
-## TFT splash and AUTO-mode fix
+## Native TFT dashboard and AUTO mode
 
-The existing native TFT chooser uses its own startup path. The redesigned artwork now has a [dedicated, backed-up integration patch](docs/TFT-STARTUP.md) for that actual chooser. The same helper can select the existing Pwnagotchi launcher's AUTO operating mode when explicitly requested; it does not enable boot activation or start an inactive Pwnagotchi.
+The [v2 native integration](docs/TFT-NATIVE-DASHBOARD.md) connects Verdant's real six-button dashboard to the existing TFT framebuffer/input supervisor. It preserves terminal/Pwnagotchi handoff and installs root-owned runtime modules, with verified backups and rollback.
 
 ```bash
-sudo /usr/bin/python3 /home/kali/verdant-cyberdeck/scripts/integrate_tft.py --apply --pwn-mode auto
+sudo /usr/bin/python3 /home/kali/verdant-cyberdeck/scripts/integrate_tft.py --apply
 ```
 
-Run that command from a normal Pi terminal after reviewing the linked scope and rollback procedure. This sandbox cannot apply root/systemd changes or certify physical TFT operation.
+Run from a normal Pi terminal. F1 returns from the current native application using its existing stop-current-app behavior; F3 previews the splash from the dashboard. Interactive tools use the existing `kali` terminal service. AUTO mode already selected by the earlier apply is preserved. Explicit mode selection remains available as `--pwn-mode auto`; boot enablement is unchanged.
+
+![Native dashboard preview](assets/native-dashboard.png)
+
+The restricted execution session can prepare/test the patch but cannot apply root/systemd changes or certify physical TFT operation. See the linked ownership, rollback and validation notes.
 
 ## Pwnagotchi installation files
 

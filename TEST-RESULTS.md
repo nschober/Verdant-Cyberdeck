@@ -1,5 +1,12 @@
 # Verification results
 
+## Native TFT dashboard v2
+
+Final portable suite: 38 tests, 37 passed and one expected host-local preservation skip. The startup/replay timing test verifies a four-second phase from the first prepared native frame, within the requested 3–5 seconds.
+
+The previous splash-only host apply succeeded, with matching installed artwork/launcher hashes and mode `auto`. That did not establish that the full dashboard appeared on the screen. V2 now connects the real UI renderer and hit targets to the native supervisor. Tests include a simulated supervisor boot that checks the full 480×320 BGRX frame against the actual six-button renderer, plus terminal command newline delivery, touch/keyboard safety, FIFO validation and backup/rollback. Physical host application/observation is still required.
+
+
 ## TFT startup/AUTO fix
 
 The redesigned splash renders at 480×320 and was visually reviewed. The patch dry-run recognizes the actual installed TFT chooser and identifies the current mode as manual. Seven new behavioral tests pass. The complete portable suite now contains 28 tests, with the expected host-only historical preservation test skipped on a clean export. No host apply has been performed from the restricted execution session: system-bus/device/root access remains unavailable. A normal-host apply, actual TFT observation and Pwnagotchi AUTO-state check are still required.
