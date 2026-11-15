@@ -40,7 +40,12 @@ class Dashboard:
         self.next_status = 0
         self.status_busy = False
         self.busy = False
-        self.splash_until = time.monotonic() + SPLASH_SECONDS
+        self.splash_until = float("inf")
+        self.auth_target = None
+        self.password = ""
+        self.auth_shift = False
+        self.auth_busy = False
+        self.auth_message = "Kali login password"
         self.items = None
         self.body = ''
         self.home()
@@ -51,11 +56,14 @@ class Dashboard:
         self.close()
 
     def reset(self, title):
+        self.pwn_screen = False
+        self.password = ''
+        self.auth_target = None
+        self.auth_busy = False
         self.generation += 1
         self.title = title
         self.buttons = [Button('BACK', (6,281,108,316), self.home),
-                        Button('HOME',(114,281,216,316),self.home),
-                        Button('EXIT',(372,281,474,316),self.shutdown)]
+                        Button('MAIN MENU',(114,281,279,316),self.home)]
         self.lines = []
         self.items = None
         self.offset = 0
@@ -73,7 +81,7 @@ class Dashboard:
             ('WI-FI RECON',self.wifi),('PWNAGOTCHI',self.pwn),
             ('NETWORK',lambda:self.tools('NETWORK')),('WIRELESS',lambda:self.tools('WIRELESS')),
             ('BLUETOOTH',self.bt),('TRAFFIC / WEB',lambda:self.tools('TRAFFIC / WEB'))])
-        self.buttons.append(Button('SYSTEM',(222,281,366,316),self.system))
+        self.buttons.append(Button('SYSTEM',(285,281,474,316),lambda:self.protect(self.system)))
 
     def text(self, title, content, controls=()):
         self.reset(title)
@@ -115,16 +123,18 @@ class Dashboard:
         self.pool.submit(work)
 
     def pwn(self):
-        self.grid('PWNAGOTCHI',[(action.upper(),lambda a=action:self.confirm_service(a)) for action in ('start','stop','restart')]+[
+        running=pwnagotchi.running()
+        self.grid('PWNAGOTCHI',[(('OPEN' if running else 'START'),self.open_pwn_screen if running else lambda:self.control('start'))]+[(action.upper(),lambda a=action:self.control(a)) for action in ('stop','restart')]+[
             ('STATUS',lambda:self.job('PWNAGOTCHI STATUS',pwnagotchi.status)),
             ('LOGS',lambda:self.job('PWNAGOTCHI LOGS',pwnagotchi.logs)),
-            ('CONFIGURATION',lambda:self.text('PWNAGOTCHI CONFIG',pwnagotchi.configuration()))])
+            ('CONFIGURATION',lambda:self.protect(lambda:self.text('PWNAGOTCHI CONFIG',pwnagotchi.configuration())))])
 
-    def confirm_service(self, action):
-        warning = ('The existing service starts its radio dependencies. Wireless operations may begin and its TFT renderer may take the screen.' if action != 'stop' else 'Stops the existing Pwnagotchi service and its PartOf dependencies. Configuration and learned data are preserved.')
-        if action!='stop' and pwnagotchi.background_enabled():
-            warning='Starts the existing Pwnagotchi service in the background using its current radio/AI settings. Wireless operations may begin. Other dashboard and terminal windows stay open.'
-        self.text(action.upper()+' PWNAGOTCHI?',warning,[('CONFIRM '+action.upper(),lambda:self.control(action)),('CANCEL',self.pwn)])
+    def open_pwn_screen(self):
+        self.reset('PWNAGOTCHI LIVE')
+        self.pwn_screen = True
+        self.buttons = [Button('MAIN MENU',(6,281,172,316),self.home),
+                        Button('PWN MENU',(178,281,322,316),self.pwn),
+                        Button('SETTINGS',(328,281,474,316),lambda:self.protect(lambda:self.text('PWNAGOTCHI CONFIG',pwnagotchi.configuration())))]
 
     def control(self, action):
         if self.framebuffer:
@@ -180,12 +190,87 @@ class Dashboard:
             ('APP LOGS',lambda:self.text('APPLICATION LOG',self.log_path.read_text()[-20000:])),
             ('TOOL STATUS',lambda:self.text('INSTALLED TOOLS','\n'.join(f'{name}: {installed(exe) or "MISSING"}' for group in launchers.TOOLS.values() for name,exe,_ in group)))])
 
+    def protect(self, callback):
+        self.reset('UNLOCK SETTINGS')
+        self.auth_target = callback
+        self.auth_shift = False
+        self.auth_symbols = False
+        self.auth_message = 'Kali login password'
+        self.auth_keyboard()
+
+    def auth_keyboard(self):
+        self.buttons = [Button('CANCEL',(6,281,150,316),self.home),
+                        Button('UNLOCK',(330,281,474,316),self.submit_password),
+                        Button('SHIFT',(156,281,240,316),self.toggle_shift),
+                        Button('DELETE',(246,281,324,316),lambda:self.password_key('BACKSPACE'))]
+        rows = ['1234567890','qwertyuiop','asdfghjkl;','zxcvbnm,./']
+        shifted = ['!@#$%^&*()','QWERTYUIOP','ASDFGHJKL:','ZXCVBNM<>?']
+        import string
+        symbols=[string.punctuation[i:i+10] for i in range(0,40,10)]
+        for row,keys in enumerate(symbols if self.auth_symbols else shifted if self.auth_shift else rows):
+            for col,key in enumerate(keys):
+                x,y=6+col*47,133+row*35
+                self.buttons.append(Button(key,(x,y,x+44,y+32),lambda k=key:self.password_key(k)))
+        self.buttons.append(Button('SPACE',(6,100,118,130),lambda:self.password_key(' ')))
+        self.buttons.append(Button("QUOTE",(124,100,236,130),lambda:self.password_key(chr(34) if self.auth_shift else chr(39))))
+        self.buttons.append(Button('SYMBOLS',(242,100,354,130),self.toggle_symbols))
+        self.buttons.append(Button('- / _',(360,100,474,130),lambda:self.password_key('_' if self.auth_shift else '-')))
+
+    def toggle_symbols(self):
+        self.auth_symbols=not self.auth_symbols
+        self.auth_keyboard()
+
+    def toggle_shift(self):
+        self.auth_shift=not self.auth_shift
+        self.auth_keyboard()
+
+    def password_key(self, key):
+        if self.auth_busy:return
+        if key=='BACKSPACE':self.password=self.password[:-1]
+        elif len(self.password)<256:self.password+=key
+
+    def submit_password(self):
+        if self.auth_busy or not self.password:return
+        from .authentication import authenticate
+        secret=self.password;self.password=''
+        self.auth_busy=True;self.auth_message='Checking login password…'
+        token=self.generation
+        def work():
+            try:ok=authenticate('kali',secret)
+            except Exception:ok=False
+            self.events.put((('auth',token),ok))
+        self.pool.submit(work)
+
+    def enter_menu(self):
+        self.splash_until=0
+        self.home()
+
     def tick(self):
         while not self.events.empty():
             token,content = self.events.get()
-            if token=='status':
+            if isinstance(token,tuple) and token[0]=='auth':
+                if token[1]==self.generation and self.auth_target:
+                    self.auth_busy=False
+                    callback=self.auth_target
+                    if content:
+                        self.auth_target=None
+                        callback()
+                    else:self.auth_message='Authentication failed. Try again.'
+            elif isinstance(token,tuple) and token[0]=='service':
+                if token[1]==self.generation:
+                    self.busy=False
+                    self.next_status=0
+                    if token[3] and token[2] in ('start','restart'):self.open_pwn_screen()
+                    else:self.set_content(content)
+            elif token=='status':
                 self.status=content
                 self.status_busy=False
+                if self.title=='PWNAGOTCHI':
+                    for button in self.buttons:
+                        if button.label in ('OPEN','START'):
+                            running='Pwn: active /' in content or 'Pwn: activating /' in content
+                            button.label='OPEN' if running else 'START'
+                            button.action=self.open_pwn_screen if running else lambda:self.control('start')
             elif token==self.generation:
                 self.busy=False
                 self.set_content(content)
@@ -203,6 +288,7 @@ class Dashboard:
 
     def tap(self,x,y):
         if time.monotonic()<self.splash_until:
+            if 95<=x<=385 and 275<=y<=311:self.enter_menu()
             return
         for button in self.buttons:
             a,b,c,d=button.rect
@@ -221,15 +307,18 @@ class Dashboard:
         if time.monotonic()<self.splash_until:
             remaining=self.splash_until-time.monotonic()
             return render_splash(1.0 if remaining>10 else 1.0-remaining/SPLASH_SECONDS)
+        if getattr(self,'pwn_screen',False):
+            from .pwn_screen import draw_screen
+            draw_screen(im)
         title_font=ImageFont.truetype(BOLD_FONT,TITLE_SIZE)
         title=self.title
         while title_font.getlength(title)>460:
             title=title[:-2]+'…' if title.endswith('…') else title[:-1]+'…'
         bounds=draw.textbbox((0,0),title,font=title_font)
-        draw.text(((480-(bounds[2]-bounds[0]))/2-bounds[0],2),title,font=title_font,fill=GREEN)
+        if not getattr(self,'pwn_screen',False):draw.text(((480-(bounds[2]-bounds[0]))/2-bounds[0],2),title,font=title_font,fill=GREEN)
         # Keep three short status lines inside the header.
         status=self.status.splitlines()
-        for i,line in enumerate(status[:3]):
+        for i,line in enumerate([] if getattr(self,'pwn_screen',False) else status[:3]):
             while fonts[11].getlength(line)>461:
                 line=line[:-1]
             draw.text((8,28+i*13),line,font=fonts[11],fill=WHITE)
@@ -241,7 +330,11 @@ class Dashboard:
             button_font=ImageFont.truetype(BOLD_FONT,size)
             box=draw.textbbox((0,0),label,font=button_font)
             draw.text(((x1+x2-(box[2]-box[0]))/2-box[0],(y1+y2-(box[3]-box[1]))/2-box[1]),label,font=button_font,fill=GREEN)
-        if self.items is None:
+        if self.auth_target:
+            draw.rectangle((6,69,474,97),fill=BG)
+            draw.text((10,70),self.auth_message,font=fonts[12],fill=WHITE)
+            draw.text((260,70),'*'*min(22,len(self.password)),font=fonts[12],fill=GREEN)
+        elif self.items is None and not getattr(self,'pwn_screen',False):
             for i,line in enumerate(self.lines[self.offset:self.offset+10]):
                 draw.text((8,112+i*16),line,font=fonts[12],fill=WHITE)
             draw.text((387,168),f'{self.offset+1}/{len(self.lines)}',font=fonts[11],fill=GREEN)

@@ -23,13 +23,12 @@ class NativeTests(unittest.TestCase):
             self.assertIn(label,labels)
         self.assertEqual(self.deck.render().size,(480,320))
         self.assertEqual(self.actions,[]);self.assertEqual(self.terminal,[])
-    def test_touch_held_through_splash_does_not_launch_any_action(self):
-        self.deck.touch_down(9)
-        self.deck.splash_until=0
-        self.deck.touch_up(9,250,100)
-        self.assertEqual(self.deck.title,'VERDANT CYBERDECK')
+    def test_splash_enter_touch_does_not_launch_hidden_menu(self):
         self.deck.touch_down(9);self.deck.touch_up(9,250,100)
-        self.assertEqual(self.deck.title,'PWNAGOTCHI')
+        self.assertEqual(self.deck.splash_until,float('inf'))
+        self.deck.touch_down(9);self.deck.touch_up(9,240,292)
+        self.assertEqual(self.deck.splash_until,0)
+        self.assertEqual(self.deck.title,'VERDANT CYBERDECK')
         self.assertEqual(self.actions,[])
     def test_touch_mapping_clamps_edges(self):
         self.assertEqual(self.deck.coordinate(4095,0,4095,480),479)
@@ -41,7 +40,8 @@ class NativeTests(unittest.TestCase):
         self.assertEqual(self.terminal,[['/usr/bin/nmap','--help']])
         self.deck.shutdown();self.assertIsNone(self.terminal[-1])
     def test_pwn_controls_keep_runtime_and_call_only_explicit_action(self):
-        self.deck.control('restart');self.assertEqual(self.actions,['restart'])
+        self.deck.control('restart');self.deck.pool.shutdown(wait=True)
+        self.assertEqual(self.actions,['restart'])
         self.assertFalse(self.deck._closed)
     def test_keyboard_navigation_and_preview_do_not_auto_start_radios(self):
         self.deck.splash_until=0
@@ -49,23 +49,14 @@ class NativeTests(unittest.TestCase):
         self.deck.key(E.KEY_F3,1)
         self.assertGreater(self.deck.splash_until,time.monotonic())
         self.deck.key(E.KEY_1,1);self.assertEqual(self.actions,[])
-    def test_splash_duration_is_four_seconds_from_first_ready_frame(self):
-        clock=[100.0]
-        with patch('cyberdeck.native.time.monotonic',side_effect=lambda:clock[0]):
-            first=self.deck.render()
-            self.assertEqual(self.deck.splash_until,104.0)
-            self.assertGreaterEqual(self.deck.splash_until-clock[0],3.0)
-            self.assertLessEqual(self.deck.splash_until-clock[0],5.0)
-            clock[0]=103.9
-            self.deck.render()
-            self.assertGreater(self.deck.splash_until,clock[0])
-            clock[0]=104.1
-            home=self.deck.render()
-            self.assertNotEqual(first.tobytes(),home.tobytes())
-            self.assertEqual(self.deck.splash_until,104.0)
-            clock[0]=200.0
-            self.deck.preview_splash();self.deck.render()
-            self.assertEqual(self.deck.splash_until,204.0)
+    def test_splash_persists_until_explicit_entry_and_preview_restores_it(self):
+        self.deck.render()
+        self.assertEqual(self.deck.splash_until,float('inf'))
+        self.deck.tap(250,100);self.assertEqual(self.actions,[])
+        self.deck.key(E.KEY_ENTER,1);self.assertEqual(self.deck.splash_until,0)
+        self.assertEqual(self.deck.render().size,(480,320))
+        self.deck.preview_splash();self.deck.render()
+        self.assertEqual(self.deck.splash_until,float('inf'))
     def test_popup_click_dismisses_without_activating_hidden_menu(self):
         from cyberdeck.alerts import EventStore,AlertReader
         path=Path(self.directory.name)/'popup.json'

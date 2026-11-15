@@ -1,0 +1,15 @@
+{
+  "test_count": 59,
+  "passed": 58,
+  "skipped": 1,
+  "portable_result": "pass",
+  "syntax": "pass",
+  "shell_syntax": "pass",
+  "offscreen_rendering": "pass",
+  "actual_host_apply": "pending",
+  "physical_live_screen": "pending",
+  "physical_pointer_smoothness": "pending",
+  "real_password_authentication": "not attempted; no user credential supplied",
+  "historical_host_preservation_check": "Old original config hash differs from current config, predating this change; baseline retained unchanged",
+  "service_log_observation": "Existing start requests succeeded while service was already running; no foreground screen existed under old headless integration"
+}

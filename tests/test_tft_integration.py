@@ -17,7 +17,7 @@ class TFTIntegrationTests(unittest.TestCase):
     def test_splash_dimensions_progress_and_no_shared_image_mutation(self):
         start=render_splash(0);end=render_splash(1)
         self.assertEqual(start.size,(480,320));self.assertEqual(start.mode,'RGB')
-        self.assertNotEqual(start.tobytes(),end.tobytes())
+        self.assertEqual(start.tobytes(),end.tobytes())
         self.assertEqual(render_splash(0).tobytes(),start.tobytes())
     def test_native_launcher_patch_preserves_existing_service_selection(self):
         source=ORIGINAL.read_text();updated=integration.patch_launcher(source)
@@ -123,7 +123,7 @@ class NativeSupervisorTests(unittest.TestCase):
             def select_events(*args):
                 select_calls[0]+=1
                 if select_calls[0]>1:raise StopLoop()
-                external_active[0]=True;clock[0]=102.0
+                external_active[0]=True;clock[0]=104.0
                 return [],[],[]
             def host_command(args,**kwargs):
                 state='active' if external_active[0] and args[-1]=='pwnagotchi.service' else 'inactive'

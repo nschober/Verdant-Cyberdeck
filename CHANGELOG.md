@@ -60,3 +60,11 @@
 - Add a guarded optional framebuffer backend, desktop launcher and autostart management.
 - Add reversible user installation, rollback-aware uninstallation and verification scripts.
 - Record 17 passing local tests and unavailable physical hardware checks. No hardware-certified release was produced.
+
+## TFT control refinements — 2026-11-15
+
+- State-aware OPEN displays the actual Pwnagotchi canvas; START directly controls the existing service. Successful native Start/Restart opens the live screen.
+- Service-scoped runtime canvas bridge, with backups and rollback, preserves installed Pwnagotchi source and radio/AI settings.
+- Reduced mouse gain and coalesced pointer rendering replace per-event redraw/file writes.
+- Persistent Network Security Dashboard welcome screen, Enter Main Menu, and Main Menu footer without Exit.
+- Existing PAM login password protects app System/configuration pages; masked touch/physical keyboard input with no stored credentials.

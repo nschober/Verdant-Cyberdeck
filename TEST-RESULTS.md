@@ -70,3 +70,9 @@ Executed on 2026-11-14 in the provided Kali ARM64 terminal sandbox.
 `python3 verify.py --hardware` returned exit 1 deliberately: unavailable hardware checks were not suppressed. The full per-check outputs are in `logs/test-results.json`. No physical test is counted as successful from fixtures or offscreen rendering. Pwnagotchi was never started or stopped for these checks.
 
 The known remaining gap is host-side physical display/input validation and an explicit handoff from the existing enabled TFT launcher. Desktop autostart alone does not put an X11 window on the independently rendered SPI framebuffer. No existing hardware/startup service was changed to bypass that gap.
+
+## Latest TFT controls revision
+
+Clean-export run: **59 tests, 58 passed and one expected host-only preservation-manifest skip**. Syntax compilation, shell syntax, offscreen rendering, isolated runtime canvas-bridge publication, pointer coalescing, direct service actions, OPEN/START navigation, and mocked PAM authentication/account handling passed. See [TFT controls evidence](docs/evidence/tft-controls-tests.json).
+
+The existing host-only original preservation test still reports a previously observed config checksum change; its original manifest was not rewritten. No main configuration change was made by this revision. Root host apply, physical live-screen/pointer observation, and authentication with the owner’s actual password remain pending. No real handshake was created for tests.

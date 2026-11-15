@@ -32,7 +32,7 @@ def _artwork():
     text((25,111),'C Y B E R D E C K',15,'#77f7a6',BOLD)
     line([(25,146),(282,146)],'#29503c')
     line([(25,146),(92,146)],'#77f7a6',2)
-    text((25,157),'COMPACT HARDWARE. DIRECT CONTROL.',9,'#8baf9a',MONO)
+    text((25,157),'NETWORK SECURITY DASHBOARD',11,'#8baf9a',MONO)
     cx,cy,r=392,99,51
     outer=[(cx+math.cos(math.radians(30+60*i))*r,cy+math.sin(math.radians(30+60*i))*r) for i in range(6)]
     d.polygon(xy(outer),fill='#0b2117',outline='#376a4c',width=scale)
@@ -54,14 +54,10 @@ def _artwork():
             box((x,y+4,x+4,y+8),fill='#65d98b')
             text((x+12,y),label,11,'#d0e8d7',MONO)
     line([(25,280),(455,280)],'#214033')
-    text((25,288),'INTERFACE READY',8,'#8baf9a',MONO)
-    text((305,288),'PASSIVE STARTUP',8,'#77f7a6',MONO)
+    d.rounded_rectangle(tuple(round(v*scale) for v in (95,275,385,311)),radius=6*scale,fill='#143926',outline='#77f7a6',width=scale)
+    text((150,283),'ENTER MAIN MENU',16,'#ebfff2',BOLD)
     return im.resize((480,320),Image.Resampling.LANCZOS)
 
 def render_splash(progress=1.0):
-    im=_artwork().copy()
-    progress=max(0.,min(1.,float(progress)))
-    d=ImageDraw.Draw(im)
-    d.line((25,305,455,305),fill='#163024',width=2)
-    d.line((25,305,25+int(430*progress),305),fill='#77f7a6',width=2)
-    return im
+    """Persistent welcome screen; progress retained for API compatibility."""
+    return _artwork().copy()

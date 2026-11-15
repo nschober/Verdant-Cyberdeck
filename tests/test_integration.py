@@ -36,17 +36,18 @@ class DashboardTests(unittest.TestCase):
         self.app.tap(20,300)
         self.assertEqual(self.app.title,'VERDANT CYBERDECK')
     def test_passive_startup(self):
-        with patch('cyberdeck.dashboard.run') as run, patch('cyberdeck.launchers.subprocess.Popen') as popen,patch('cyberdeck.wifi_recon.scan') as scan:
+        with patch('cyberdeck.dashboard.run') as run, patch('cyberdeck.launchers.subprocess.Popen') as popen,patch('cyberdeck.wifi_recon.scan') as scan, patch('cyberdeck.pwnagotchi.running',return_value=False):
             self.app.home();self.app.pwn();self.app.wifi();self.app.bt()
             run.assert_not_called();popen.assert_not_called();scan.assert_not_called()
-    def test_service_requires_confirmation(self):
-        self.app.pwn()
-        with patch.object(self.app,'control') as control:
-            self.app.tap(20,100)
-            self.assertIn('START',self.app.title)
-            control.assert_not_called()
-            self.app.tap(20,90)
+    def test_start_is_direct_and_open_shows_real_screen_page(self):
+        with patch('cyberdeck.pwnagotchi.running',return_value=False),patch.object(self.app,'control') as control:
+            self.app.pwn();self.app.tap(20,100)
             control.assert_called_once_with('start')
+        with patch('cyberdeck.pwnagotchi.running',return_value=True):
+            self.app.pwn();self.assertIn('OPEN',[b.label for b in self.app.buttons])
+            self.app.tap(20,100)
+            self.assertTrue(self.app.pwn_screen)
+            self.assertEqual(self.app.title,'PWNAGOTCHI LIVE')
     def test_long_text_is_inside_view(self):
         self.app.text('test','W'*400)
         font=ImageFont.truetype(FONT,12)

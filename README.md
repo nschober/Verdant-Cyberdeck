@@ -18,14 +18,14 @@ Verdant Cyberdeck brings tool launchers, network diagnostics and controls for an
 | Menu | Controls |
 |---|---|
 | Wi-Fi Recon | Adapter/connection status, explicit AP scan, signal/SSID sort, SSID, BSSID, channel, frequency, security, refresh and scrolling |
-| Pwnagotchi | Existing installation detection; confirmed Start/Stop/Restart; status, journals and read-only configuration summary |
+| Pwnagotchi | Existing installation detection; state-aware Open/Start; direct Stop/Restart; status, journals and read-only configuration summary |
 | Network | Nmap, Bettercap and Metasploit launchers |
 | Wireless | Aircrack-ng, Wifite, Kismet and monitor-capability diagnostics |
 | Bluetooth | Controller/power status, explicit discovery, known-device information and bluetoothctl |
 | Traffic / Web | tcpdump, TShark, Nikto, Gobuster and SQLmap launchers |
 | System | Terminal, tmux, htop, interfaces/IP, CPU/memory, display diagnostics, logs and installation status |
 
-Includes a brief startup splash, large touch targets, Back/Home/Exit controls, periodic status updates, error screens and bounded background commands. The desktop and optional framebuffer backends share the same 480×320 renderer.
+Includes a persistent welcome screen with Enter Main Menu, large touch targets, Back/Main Menu controls, periodic status updates, error screens and bounded background commands. The desktop and optional framebuffer backends share the same 480×320 renderer.
 
 ![Startup splash](assets/splash.png)
 
@@ -59,11 +59,11 @@ The installer checks Kali/ARM64, reports the inherited session and framebuffer s
 
 After installation, `~/.local/bin/verdant-cyberdeck` is the preferred launcher. `kali-cyberdeck` remains a compatibility alias. The original installation at `/home/kali/kali-cyberdeck-35` is retained as a symlink to `/home/kali/verdant-cyberdeck`; new clones can use their own paths.
 
-The existing desktop/autostart entry filenames remain `kali-cyberdeck.desktop` to avoid duplicate startup entries. Their displayed name is Verdant Cyberdeck. On a 480×320 desktop the interface is borderless; on larger desktops it is a fixed-size window. Escape and Exit close the dashboard without stopping independently running tools or services.
+The existing desktop/autostart entry filenames remain `kali-cyberdeck.desktop` to avoid duplicate startup entries. Their displayed name is Verdant Cyberdeck. On a 480×320 desktop the interface is borderless; on larger desktops it is a fixed-size window. Escape returns to Main Menu; the desktop window manager can still close its window without stopping independent services. The TFT has no Exit control.
 
 ## Background capture, alerts and typography
 
-[Background integration](docs/BACKGROUND-ALERTS.md) keeps the existing Pwnagotchi service running while the dashboard or normal terminal is foreground. A passive capture-event monitor delivers eight-second native overlays and always-on-top ordinary desktop notifications. The centered title is size 19; button labels are bold and one size larger. The splash remains four seconds.
+[Background integration](docs/BACKGROUND-ALERTS.md) keeps the existing Pwnagotchi service running while the dashboard or normal terminal is foreground. A passive capture-event monitor delivers eight-second native overlays and always-on-top ordinary desktop notifications. The centered title is size 19; button labels are bold and one size larger. The splash now waits for Enter Main Menu. See [TFT controls](docs/TFT-CONTROLS.md) for the live screen, mouse fixes and login-password protection.
 
 ```bash
 # Run from SSH/desktop; an active native terminal is restarted for its overlay.
@@ -99,7 +99,7 @@ The first exporter omitted assets, translations, entry points and some auxiliary
 
 This project **does not install, remove, overwrite or reconfigure Pwnagotchi**. It controls the original host's existing `pwnagotchi.service`, whose custom launcher uses `/root/pwnagotchi-modern` and requires `pwnagotchi-bettercap.service` and `pwngrid-peer.service`.
 
-Start/Restart require confirmation because those existing dependencies can activate wireless operations. Desktop actions use the existing polkit agent through `pkexec`, without adding sudoers rules. Explicit framebuffer service handoff first releases the dashboard and then requires existing systemctl authorization. Configuration is shown read-only with credentials omitted. Keys, plugins, mode settings, learned data and network settings are not written.
+Start/Restart directly control the existing service and its radio dependencies. OPEN displays its actual live screen while it continues in the background. System and configuration pages require the existing Kali login password. Desktop actions use the existing polkit agent through `pkexec`, without adding sudoers rules. Explicit framebuffer service handoff first releases the dashboard and then requires existing systemctl authorization. Configuration is shown read-only with credentials omitted. Keys, plugins, mode settings, learned data and network settings are not written.
 
 An inaccessible service state is shown as **unknown**, never operational. Closing the dashboard does not stop Pwnagotchi. The original unit has no dependency on this project; live operational independence still needs host-side verification.
 

@@ -9,7 +9,7 @@ from .dashboard import Dashboard
 ROOT = Path(__file__).resolve().parents[1]
 
 def main():
-    parser=argparse.ArgumentParser(description='Passive 480x320 Cyberdeck dashboard')
+    parser=argparse.ArgumentParser(description='Network Security Dashboard')
     parser.add_argument('--framebuffer',action='store_true',help='Explicit TFT backend; refuses existing TFT owners')
     parser.add_argument('--self-test',action='store_true',help='Exercise pages offscreen; never touch radios or services')
     parser.add_argument('--smoke-test',action='store_true',help='Open existing desktop display and exit after two seconds')
@@ -62,7 +62,15 @@ def desktop(smoke=False):
     canvas.pack()
     app=Dashboard(root.destroy)
     root.protocol('WM_DELETE_WINDOW',app.shutdown)
-    root.bind('<Escape>',lambda e:app.shutdown())
+    def keyboard(event):
+        if app.auth_target:
+            if event.keysym=='Return':app.submit_password()
+            elif event.keysym=='BackSpace':app.password_key('BACKSPACE')
+            elif event.keysym=='Escape':app.home()
+            elif event.char and event.char.isprintable():app.password_key(event.char)
+        elif event.keysym=='Return' and app.splash_until:app.enter_menu()
+        elif event.keysym=='Escape':app.home()
+    root.bind('<Key>',keyboard)
     canvas.bind('<Button-1>',lambda e:app.tap(e.x,e.y))
     canvas.bind('<Button-4>',lambda e:app.scroll(-3))
     canvas.bind('<Button-5>',lambda e:app.scroll(3))

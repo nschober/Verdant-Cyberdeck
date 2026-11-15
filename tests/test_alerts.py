@@ -78,7 +78,7 @@ class BackgroundIntegrationTests(unittest.TestCase):
     def test_background_plan_preserves_main_config_and_rolls_back(self):
         from contextlib import ExitStack
         with tempfile.TemporaryDirectory() as directory,ExitStack() as stack:
-            base=Path(directory);names=('LAUNCHER','ARTWORK','MODE','AUTO_FLAG','RUNTIME','PWN_UNIT','PWN_CONFIG','PWN_DEFAULTS','TERMINAL','MONITOR_UNIT')
+            base=Path(directory);names=('LAUNCHER','ARTWORK','MODE','AUTO_FLAG','RUNTIME','PWN_UNIT','PWN_CONFIG','PWN_DEFAULTS','TERMINAL','MONITOR_UNIT','BRIDGE_UNIT','BRIDGE_RUNTIME')
             paths={key:base/key for key in names};paths['PWN_DROPIN']=base/'conf.d/zzzz-verdant-background.toml';paths['PWN_DROPIN'].parent.mkdir()
             for key,value in paths.items():stack.enter_context(patch.object(integration,key,value))
             stack.enter_context(patch.object(integration,'launch_desktop_alerts',return_value='mocked desktop'))

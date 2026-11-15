@@ -66,3 +66,8 @@ def control_args(action):
     if not UNIT.exists():
         raise RuntimeError('Existing Pwnagotchi unit not detected; refusing to launch another copy.')
     return ['systemctl', action, SERVICE]
+
+
+def running():
+    value=state()
+    return value.startswith(("active /", "activating /", "reloading /"))

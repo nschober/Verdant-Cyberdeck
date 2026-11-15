@@ -58,15 +58,23 @@ class NativeDeck(Dashboard):
         self._logger.setLevel(self._prior_level)
 
     def control(self, action):
-        try:
-            if action not in ('start','stop','restart'):
-                raise ValueError('Unsupported Pwnagotchi action')
-            self._pwn_action(action)
-            if action == 'stop':
-                self.pwn()
-        except Exception as exc:
-            logging.exception('Native Pwnagotchi action failed')
-            self.text('SERVICE ERROR',str(exc))
+        if action not in ('start','stop','restart'):
+            self.text('SERVICE ERROR','Unsupported Pwnagotchi action')
+            return
+        self.text('PWNAGOTCHI '+action.upper(),'Working…',[('PWNAGOTCHI MENU',self.pwn)])
+        self.busy=True
+        token=self.generation
+        def work():
+            try:
+                self._pwn_action(action)
+                from . import pwnagotchi
+                result='Action: '+action+'\n'+pwnagotchi.state()+'\nUse Logs to check radio and plugin health.'
+                success=True
+            except Exception as exc:
+                result='Service action failed: '+str(exc);success=False
+                logging.exception('Native Pwnagotchi service action failed')
+            self.events.put((('service',token,action,success),result))
+        self.pool.submit(work)
 
     def launch(self, executable, args=()):
         path=installed(executable)
@@ -85,10 +93,7 @@ class NativeDeck(Dashboard):
         super().tap(x,y)
 
     def touch_down(self,device_id):
-        if time.monotonic()<self.splash_until:
-            self._blocked_touches.add(device_id)
-        else:
-            self._blocked_touches.discard(device_id)
+        self._blocked_touches.discard(device_id)
 
     def touch_up(self,device_id,x,y):
         if device_id in self._blocked_touches:
@@ -120,6 +125,16 @@ class NativeDeck(Dashboard):
             self.preview_splash()
             return
         if time.monotonic()<self.splash_until:
+            if code==E.KEY_ENTER:self.enter_menu()
+            return
+        if self.auth_target:
+            if code==E.KEY_ESC:self.home()
+            elif code==E.KEY_ENTER:self.submit_password()
+            elif code==E.KEY_BACKSPACE:self.password_key('BACKSPACE')
+            else:
+                from .pointer import key_character
+                char=key_character(code,getattr(self,'held_keys',set()))
+                if char:self.password_key(char)
             return
         if code in (E.KEY_UP,E.KEY_DOWN):
             self.scroll(-3 if code==E.KEY_UP else 3)
@@ -142,9 +157,9 @@ class NativeDeck(Dashboard):
     def render(self):
         if self._splash_pending and self.splash_until!=0:
             frame=render_splash(0)
-            self.splash_until=time.monotonic()+SPLASH_SECONDS
+            self.splash_until=float("inf")
             self._splash_pending=False
-            logging.info('Native splash phase started: %.1f seconds',SPLASH_SECONDS)
+            logging.info('Native splash waits for Enter Main Menu')
             self.alerts.draw(frame)
             return frame
         frame=super().render()

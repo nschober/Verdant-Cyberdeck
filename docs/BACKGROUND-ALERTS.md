@@ -4,7 +4,7 @@
 
 Pwnagotchi continues using its existing service, AUTO selection, radio settings, plugins and learned data. The native dashboard and ordinary terminal can remain foreground applications while it runs. Opening or closing the dashboard does not start Pwnagotchi. Start/Stop/Restart still operate the existing service explicitly.
 
-The title is centered at font size 19, up from 17. Standard button text is bold at size 15, up from 14; long-label fallback text is bold at size 12, up from 11. The four-second splash is retained.
+The title is centered at font size 19, up from 17. Standard button text is bold at size 15, up from 14; long-label fallback text is bold at size 12, up from 11. The welcome screen now persists until Enter Main Menu. [Updated TFT controls](TFT-CONTROLS.md) cover the live Pwnagotchi screen, direct Start, reduced mouse sensitivity, and PAM-protected settings.
 
 ## Narrow host changes
 

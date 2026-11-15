@@ -33,6 +33,8 @@ PWN_DEFAULTS = Path('/etc/pwnagotchi/default.toml')
 TERMINAL = Path('/opt/tft-terminal/terminal.py')
 MONITOR_UNIT = Path('/etc/systemd/system/verdant-handshake-monitor.service')
 MONITOR_SERVICE = 'verdant-handshake-monitor.service'
+BRIDGE_UNIT = Path('/etc/systemd/system/pwnagotchi.service.d/verdant-screen.conf')
+BRIDGE_RUNTIME = RUNTIME/'pwn-bridge/sitecustomize.py'
 BACKGROUND_CONFIG = b'# Managed by Verdant Cyberdeck background integration\nui.display.enabled = false\n'
 
 
@@ -286,7 +288,7 @@ def patch_terminal(source):
     compile(source,str(TERMINAL),'exec');return source
 
 
-def patch_launcher(source, background=False):
+def _patch_launcher_v3(source, background=False):
     if BACKGROUND_MARKER in source:
         if not background:raise ValueError('Background launcher requires its headless display configuration')
         compile(source,str(LAUNCHER),'exec');return source
@@ -306,6 +308,33 @@ def patch_launcher(source, background=False):
 
 '''+source[b:]
     compile(source,str(LAUNCHER),'exec');return source
+
+
+def patch_launcher(source, background=False):
+    source=_patch_launcher_v3(source,background)
+    marker='# VERDANT RESPONSIVE INPUT v4'
+    if marker in source:return source
+    source=source.replace('from cyberdeck.native import NativeDeck, write_terminal_input',
+                          'from cyberdeck.native import NativeDeck, write_terminal_input\nfrom cyberdeck.pointer import PointerMotion\n'+marker,1)
+    source=source.replace("    publish_pointer(pointer)\n    font =", "    publish_pointer(pointer)\n    motion = PointerMotion(pointer['x'],pointer['y'])\n    pointer_dirty = False\n    last_draw = 0.0\n    frame_cache = None\n    frame_at = 0.0\n    font =",1)
+    source=source.replace('        nonlocal memory, fd\n','        nonlocal memory, fd, frame_cache, frame_at\n',1)
+    source=source.replace('        im = native.render()\n        if time.monotonic() >= native.splash_until:',
+        "        if frame_cache is None or time.monotonic()-frame_at>=0.1:\n            frame_cache = native.render()\n            frame_at = time.monotonic()\n        im = frame_cache.copy()\n        if pointer.get('active',True):",1)
+    source=source.replace("        native.pwn()\n        print('VERDANT background","        print('VERDANT background",1)
+    source=source.replace('time.monotonic() - last_owner_scan > 0.6','time.monotonic() - last_owner_scan > 3.0')
+    source=source.replace("        if mode is None:\n            draw()\n        if pending_command", "        if mode is None and time.monotonic()-last_draw>=1/30:\n            if pointer_dirty:\n                publish_pointer(pointer)\n                pointer_dirty=False\n            draw()\n            last_draw=time.monotonic()\n        elif pointer_dirty and time.monotonic()-last_draw>=1/30:\n            publish_pointer(pointer)\n            pointer_dirty=False\n            last_draw=time.monotonic()\n        if pending_command",1)
+    source=source.replace('select.select(devices, [], [], 0.3)','select.select(devices, [], [], 0.01)',1)
+    source=source.replace("pointer['x'] = max(0, min(466, pointer['x'] + event.value))", "pointer['x'], pointer['y'] = motion.move('x',event.value)")
+    source=source.replace("pointer['y'] = max(0, min(301, pointer['y'] + event.value))", "pointer['x'], pointer['y'] = motion.move('y',event.value)")
+    source=source.replace("                    publish_pointer(pointer)\n                    if mode is None:\n                        draw()\n                    continue", "                    pointer_dirty=True\n                    continue",1)
+    source=source.replace("                        pointer['x'], pointer['y'] = coordinates", "                        pointer['x'], pointer['y'] = coordinates\n                        motion.sync(*coordinates)",1)
+    source=source.replace('                    native.key(event.code, event.value)', '                    native.held_keys = set(pressed)\n                    native.key(event.code, event.value)',1)
+    # Remove the obsolete settings path which stops/restarts Pwnagotchi and bypasses PAM.
+    start=source.find('    # LOCAL SETTINGS PANEL')
+    end=source.index('    def touch_settings',start) if start>=0 else -1
+    if start>=0:source=source[:start]+"    def open_settings():\n        native.protect(lambda:native.text('PWNAGOTCHI CONFIG', __import__('cyberdeck.pwnagotchi',fromlist=['configuration']).configuration()))\n\n"+source[end:]
+    compile(source,str(LAUNCHER),'exec')
+    return source
 
 
 def launch_desktop_alerts():
@@ -391,7 +420,9 @@ def make_plan(launcher=LAUNCHER, artwork=ARTWORK, mode=MODE, auto_flag=AUTO_FLAG
             raise ValueError('Managed background file was edited; preserving it')
         monitor=("[Unit]\nDescription=Verdant Pwnagotchi handshake notifications (read only)\nAfter=systemd-journald.service\n\n[Service]\nType=simple\nUser=root\nWorkingDirectory="+str(runtime_root)+"\nEnvironment=PYTHONPATH="+str(runtime_root)+"\nExecStart=/usr/bin/python3 -m cyberdeck.alerts --monitor\nRestart=on-failure\nRestartSec=3\nUMask=0027\n\n[Install]\nWantedBy=multi-user.target\n")
         plans += [(PWN_DROPIN,BACKGROUND_CONFIG),(PWN_UNIT,patch_pwn_unit(PWN_UNIT.read_text()).encode()),
-                  (TERMINAL,patch_terminal(TERMINAL.read_text()).encode()),(MONITOR_UNIT,monitor.encode())]
+                  (TERMINAL,patch_terminal(TERMINAL.read_text()).encode()),(MONITOR_UNIT,monitor.encode()),
+                  (BRIDGE_RUNTIME,(ROOT/'bridge/sitecustomize.py').read_bytes()),
+                  (BRIDGE_UNIT,('[Service]\nEnvironment=VERDANT_PWN_SCREEN=1\nEnvironment=PYTHONPATH='+str(RUNTIME/'pwn-bridge')+'\n').encode())]
     if requested_mode is not None:
         if requested_mode != 'auto':
             raise ValueError('Only the explicitly requested AUTO mode is supported by this integration')
@@ -410,7 +441,7 @@ def install(plans, backup_root=BACKUPS, control=systemctl, restart_terminal=Fals
     tft_before = control('show', '--property=ActiveState', '--value', 'tft-launcher.service')
     mode_requested = any(path == MODE for path, _ in plans)
     background_requested=any(path==PWN_DROPIN for path,_ in plans)
-    background_changed=any(path in (PWN_DROPIN,PWN_UNIT) and (not path.exists() or path.read_bytes()!=data) for path,data in plans)
+    background_changed=any(path in (PWN_DROPIN,PWN_UNIT,BRIDGE_RUNTIME,BRIDGE_UNIT) and (not path.exists() or path.read_bytes()!=data) for path,data in plans)
     terminal_changed=any(path in (TERMINAL,RUNTIME/'cyberdeck/alerts.py') and (not path.exists() or path.read_bytes()!=data) for path,data in plans)
     terminal_before=control('show','--property=ActiveState','--value','tft-terminal.service') if background_requested else 'inactive'
     if background_requested and terminal_changed and terminal_before in ('active','activating','reloading'):
@@ -447,7 +478,7 @@ def install(plans, backup_root=BACKUPS, control=systemctl, restart_terminal=Fals
     print(f'Backup and rollback manifest: {manifest}', flush=True)
     try:
         if any(path.is_relative_to(RUNTIME) for path,_ in plans):
-            for directory in (RUNTIME,RUNTIME/'cyberdeck'):
+            for directory in (RUNTIME,RUNTIME/'cyberdeck',RUNTIME/'pwn-bridge'):
                 directory.mkdir(parents=True,exist_ok=True,mode=0o755)
                 if os.geteuid()==0:
                     os.chown(directory,0,0)
@@ -491,7 +522,7 @@ def install(plans, backup_root=BACKUPS, control=systemctl, restart_terminal=Fals
 
 def restore(manifest, control=systemctl):
     report = json.loads(Path(manifest).read_text())
-    allowed = {str(LAUNCHER), str(ARTWORK), str(MODE), str(AUTO_FLAG),str(PWN_UNIT),str(PWN_DROPIN),str(TERMINAL),str(MONITOR_UNIT)}
+    allowed = {str(LAUNCHER), str(ARTWORK), str(MODE), str(AUTO_FLAG),str(PWN_UNIT),str(PWN_DROPIN),str(TERMINAL),str(MONITOR_UNIT),str(BRIDGE_UNIT),str(BRIDGE_RUNTIME)}
     allowed.update(str(RUNTIME/'cyberdeck'/p.name) for p in (ROOT/'cyberdeck').glob('*.py'))
     for record in report['files']:
         path = Path(record['path'])
