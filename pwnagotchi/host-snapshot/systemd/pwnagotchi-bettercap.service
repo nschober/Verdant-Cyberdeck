@@ -1,0 +1,17 @@
+[Unit]
+Description=Bettercap for the Pwnagotchi USB radio
+After=NetworkManager.service
+Before=pwnagotchi.service
+PartOf=pwnagotchi.service
+
+[Service]
+Type=simple
+ExecStartPre=/root/pwnagotchi-modern/tft/radio-start.sh
+ExecStart=/usr/bin/bettercap -no-colors -iface wlan1 -caplet /root/pwnagotchi-modern/tft/bettercap.cap
+ExecStopPost=/root/pwnagotchi-modern/tft/radio-stop.sh
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=15
+
+[Install]
+WantedBy=multi-user.target

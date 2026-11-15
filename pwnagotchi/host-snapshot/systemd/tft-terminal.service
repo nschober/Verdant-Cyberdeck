@@ -1,0 +1,19 @@
+[Unit]
+Description=Independent Kali TFT Terminal
+After=multi-user.target
+
+[Service]
+Type=simple
+User=kali
+Group=kali
+SupplementaryGroups=video
+WorkingDirectory=/home/kali
+Environment=HOME=/home/kali
+Environment=USER=kali
+Environment=LOGNAME=kali
+ExecStart=/home/kali/tft-venv/bin/python /opt/tft-terminal/terminal.py
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

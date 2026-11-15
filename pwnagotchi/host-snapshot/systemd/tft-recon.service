@@ -1,0 +1,13 @@
+[Unit]
+Description=TFT WiFi Recon on dedicated USB radio
+After=NetworkManager.service
+Conflicts=pwnagotchi.service pwnagotchi-bettercap.service tft-terminal.service
+
+[Service]
+Type=simple
+Environment=TFT_WIFI_RECON=1
+ExecStartPre=/root/pwnagotchi-modern/tft/radio-start.sh
+ExecStart=/home/kali/tft-venv/bin/python /opt/tft-terminal/terminal.py
+ExecStopPost=/root/pwnagotchi-modern/tft/radio-stop.sh
+TimeoutStopSec=15
+UMask=0077

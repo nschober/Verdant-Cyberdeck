@@ -1,5 +1,10 @@
 # Verification results
 
+## Pwnagotchi file snapshot update
+
+The updated local suite has 21 tests, including four exporter/redaction tests. All 21 pass on the original host, including the unchanged Pwnagotchi checksum check. Protected runtime and plugin paths remain inaccessible; 14 readable host-integration files are captured with TOML redaction. The exporter returns a partial-export status (exit 2) for the two inaccessible source roots, rather than claiming completeness. The initial GitHub publication passed its 17-test suite with the expected one host-only skip; the updated workflow must be checked separately.
+
+
 ## Repository preparation — Verdant Cyberdeck
 
 After renaming, the user installer and all 17 local tests passed again. The original launcher remains a compatibility alias, and the preferred launcher is now `verdant-cyberdeck`. Tests use synthetic Pwnagotchi fixtures for portability. A clean export skips the host-local preservation check. GitHub Actions has been configured but has not run remotely; no CI success is claimed. The hardware limitations below still apply.

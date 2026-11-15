@@ -1,0 +1,16 @@
+[Unit]
+Description=Pwnagotchi mesh peer and local API
+Requires=pwnagotchi-bettercap.service
+After=pwnagotchi-bettercap.service
+Before=pwnagotchi.service
+PartOf=pwnagotchi.service
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/pwngrid -keys /etc/pwnagotchi -iface wlan1 -address 127.0.0.1:8666 -advertise=true -peers /var/lib/pwnagotchi/peers -client-token /var/lib/pwnagotchi/grid-token.json
+Restart=on-failure
+RestartSec=5
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target

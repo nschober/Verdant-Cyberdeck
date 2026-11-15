@@ -61,6 +61,10 @@ After installation, `~/.local/bin/verdant-cyberdeck` is the preferred launcher. 
 
 The existing desktop/autostart entry filenames remain `kali-cyberdeck.desktop` to avoid duplicate startup entries. Their displayed name is Verdant Cyberdeck. On a 480×320 desktop the interface is borderless; on larger desktops it is a fixed-size window. Escape and Exit close the dashboard without stopping independently running tools or services.
 
+## Pwnagotchi installation files
+
+The repository now includes [14 existing host-integration files](pwnagotchi/README.md): installed wrapper, service units, TFT helpers, redacted configuration and the mode value. These are inspection snapshots and are never installed over the working setup. The protected runtime source and custom plugins are **still unavailable**, with the missing locations recorded explicitly. A [read-only exporter](scripts/snapshot_pwnagotchi.py) is included to collect them locally for review using existing host sudo access.
+
 ## Pwnagotchi preservation
 
 This project **does not install, remove, overwrite or reconfigure Pwnagotchi**. It controls the original host's existing `pwnagotchi.service`, whose custom launcher uses `/root/pwnagotchi-modern` and requires `pwnagotchi-bettercap.service` and `pwngrid-peer.service`.

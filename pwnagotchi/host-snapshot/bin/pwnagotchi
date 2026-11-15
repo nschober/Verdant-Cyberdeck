@@ -1,0 +1,3 @@
+#!/bin/bash
+export PYTHONPATH="/root/pwnagotchi-modern${PYTHONPATH:+:$PYTHONPATH}"
+exec /root/pwnagotchi-modern/.venv/bin/python /root/pwnagotchi-modern/bin/pwnagotchi "$@"

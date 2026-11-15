@@ -1,0 +1,20 @@
+[Unit]
+Description=Pwnagotchi modern AI and ILI9488 TFT
+Requires=pwnagotchi-bettercap.service pwngrid-peer.service
+After=pwnagotchi-bettercap.service pwngrid-peer.service
+Conflicts=tft-terminal.service
+
+[Service]
+Type=simple
+WorkingDirectory=/root/pwnagotchi-modern
+Environment=PYTHONPATH=/root/pwnagotchi-modern
+Environment=OMP_NUM_THREADS=2
+Environment=PWNAGOTCHI_HOST_INTEGRATION=1
+ExecStart=/root/pwnagotchi-modern/tft/launch.sh
+Restart=on-failure
+RestartSec=10
+TimeoutStopSec=20
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target

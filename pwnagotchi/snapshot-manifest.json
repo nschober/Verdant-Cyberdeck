@@ -1,0 +1,101 @@
+{
+  "purpose": "Read-only inspection snapshot, not an installer or complete restoration backup",
+  "files": [
+    {
+      "path": "host-snapshot/bin/pwnagotchi",
+      "source": "/usr/local/bin/pwnagotchi",
+      "redacted": false,
+      "sha256": "1ae47df7eab27ccecb191e718a61d6f17d0ff5c30f2c0a8770490bfe4c792dcb"
+    },
+    {
+      "path": "host-snapshot/systemd/pwnagotchi.service",
+      "source": "/etc/systemd/system/pwnagotchi.service",
+      "redacted": false,
+      "sha256": "8f28a29723caa44692f82f60ec5d7b597a24e2dfaed0812e1d600f9b4d0fd542"
+    },
+    {
+      "path": "host-snapshot/systemd/pwnagotchi-bettercap.service",
+      "source": "/etc/systemd/system/pwnagotchi-bettercap.service",
+      "redacted": false,
+      "sha256": "8b678230a8e78f2acb29271e899df3fb0ae92ed6a8ed9503818911f9aee13d43"
+    },
+    {
+      "path": "host-snapshot/systemd/pwngrid-peer.service",
+      "source": "/etc/systemd/system/pwngrid-peer.service",
+      "redacted": false,
+      "sha256": "5b833910eb989ae63723f49e228af28c0359507e45d4a1817769391dc5364d57"
+    },
+    {
+      "path": "host-snapshot/systemd/tft-launcher.service",
+      "source": "/etc/systemd/system/tft-launcher.service",
+      "redacted": false,
+      "sha256": "d805f00e55df0a48ede08faf063d1e4bdc3c5259c07642889ebe9397f3899a8a"
+    },
+    {
+      "path": "host-snapshot/systemd/tft-terminal.service",
+      "source": "/etc/systemd/system/tft-terminal.service",
+      "redacted": false,
+      "sha256": "d59fea0d1bf1987b55c6a833e598294ea9a27f6448f8e2dcadf281c898dadfeb"
+    },
+    {
+      "path": "host-snapshot/systemd/tft-recon.service",
+      "source": "/etc/systemd/system/tft-recon.service",
+      "redacted": false,
+      "sha256": "25f5fac99a75409fe3a4c532d0164b415c06a7e9bbb0f6274c2182a2bd0a40de"
+    },
+    {
+      "path": "host-snapshot/systemd/tft-console.service",
+      "source": "/etc/systemd/system/tft-console.service",
+      "redacted": false,
+      "sha256": "8494c7167c5e511d5cc1da28425c2802afd254c971bafae36e31be607968c745"
+    },
+    {
+      "path": "host-snapshot/tft/launcher.py",
+      "source": "/opt/tft-terminal/launcher.py",
+      "redacted": false,
+      "sha256": "2a6fabfd1c3f3feab54a43cdd3856fff21d1bf18219ca8bd606d03512154d7ab"
+    },
+    {
+      "path": "host-snapshot/tft/terminal.py",
+      "source": "/opt/tft-terminal/terminal.py",
+      "redacted": false,
+      "sha256": "2f15af50c978a3cac54d3ae41a086ec1452ba673c04da037fb1192a6689d1c4c"
+    },
+    {
+      "path": "host-snapshot/tft/tft_view.py",
+      "source": "/opt/tft-terminal/tft_view.py",
+      "redacted": false,
+      "sha256": "c66fd6e1009fbe3e62c4608b34b01d4ee320475f2039ad80cf0a16c7cf9a8360"
+    },
+    {
+      "path": "host-snapshot/configuration/config.redacted.toml",
+      "source": "/etc/pwnagotchi/config.toml",
+      "redacted": true,
+      "sha256": "143e7c6c7a30e3750b126f42e639f69be5ead1221e575ef03753c2f16ada617f"
+    },
+    {
+      "path": "host-snapshot/configuration/default.redacted.toml",
+      "source": "/etc/pwnagotchi/default.toml",
+      "redacted": true,
+      "sha256": "e3de743c9ed3770c6175943ae2df259a6baa5e78ed41d472055867dcc742282b"
+    },
+    {
+      "path": "host-snapshot/configuration/mode.txt",
+      "source": "/etc/pwnagotchi/mode",
+      "redacted": false,
+      "sha256": "cd60ed2fa8c947cb05cb57b23884dea9390e4b6aec0add666e69bf842fc68da0"
+    }
+  ],
+  "unavailable": [
+    {
+      "source": "/root/pwnagotchi-modern",
+      "reason": "[Errno 13] Permission denied: '/root/pwnagotchi-modern'"
+    },
+    {
+      "source": "/usr/local/share/pwnagotchi/custom-plugins",
+      "reason": "[Errno 13] Permission denied: '/usr/local/share/pwnagotchi/custom-plugins'"
+    }
+  ],
+  "excluded": [],
+  "source_review": "Exported application/plugin code needs manual credential and license review before publication."
+}

@@ -1,6 +1,13 @@
 # Changelog
 
-## Unreleased — Verdant Cyberdeck
+## Unreleased — existing Pwnagotchi file snapshots
+
+- Include 14 accessible existing host-integration files, configuration snapshots with strict string/secret redaction, mode value and provenance manifest.
+- Identify protected runtime/custom-plugin source as missing instead of claiming a full Pwnagotchi backup.
+- Add a read-only local source exporter and four behavioral tests for redaction, source preservation, exclusions and symlink handling.
+- Preserve original host files and keep unreviewed privileged exports out of Git.
+
+## Repository preparation — Verdant Cyberdeck
 
 - Rename the product from Kali Cyberdeck 3.5 to Verdant Cyberdeck.
 - Retain the legacy launcher and project-path alias for the existing installation.
