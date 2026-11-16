@@ -8,7 +8,7 @@ mode="${1:---install}"
 [[ "$mode" == --check || "$mode" == --install ]] || { echo 'Use --check or --install'; exit 2; }
 arch=$(dpkg --print-architecture)
 echo "Repository package checks for $arch"
-packages=(python3-tk python3-pil python3-pil.imagetk python3-evdev xterm iw network-manager nmap bettercap aircrack-ng wifite kismet bluez tcpdump tshark metasploit-framework nikto gobuster sqlmap tmux htop)
+packages=(python3 fonts-dejavu-core python3-tk python3-pil python3-pil.imagetk python3-evdev xterm iw network-manager nmap bettercap aircrack-ng wifite kismet bluez tcpdump tshark metasploit-framework nikto gobuster sqlmap tmux htop)
 missing=()
 unavailable=()
 for package in "${packages[@]}"; do

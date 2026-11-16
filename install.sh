@@ -24,16 +24,7 @@ echo "Graphics session: DISPLAY=${DISPLAY:-unset}, WAYLAND_DISPLAY=${WAYLAND_DIS
 if [[ -n "${DISPLAY:-}" ]]; then
     xrandr --current || echo 'Display inaccessible; hardware startup remains unverified'
 fi
-runtime_packages=(python3 python3-tk python3-pil python3-pil.imagetk python3-evdev fonts-dejavu-core)
-missing=()
-for package in "${runtime_packages[@]}"; do
-    if [[ "$(dpkg-query -W -f='${Status}' "$package" 2>/dev/null)" != 'install ok installed' ]]; then
-        missing+=("$package")
-    fi
-done
-if (( ${#missing[@]} )); then
-    sudo apt-get --no-remove install "${missing[@]}"
-fi
+bash install-tools.sh --install
 /usr/bin/python3 -c 'import tkinter; from PIL import Image, ImageTk; import evdev'
 /usr/bin/python3 -c 'from cyberdeck.system_status import graphics; print(graphics())'
 for file in cyberdeck/main.py cyberdeck/dashboard.py cyberdeck/pwnagotchi.py run.sh autostart.sh uninstall.sh; do

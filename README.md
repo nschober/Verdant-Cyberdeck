@@ -13,7 +13,7 @@ bash install.sh
 ~/.local/bin/verdant-cyberdeck
 ```
 
-The installer requests sudo for missing runtime dependencies, runs its offscreen startup check, and creates user launchers and graphical login entries. The launcher uses the extracted directory, so reinstall from the new location if you move it. Installation logs are saved in `logs/install.log`.
+The installer requests sudo to install missing dashboard dependencies and launcher tools in the same run, runs its offscreen startup check, and creates user launchers and graphical login entries. The launcher uses the extracted directory, so reinstall from the new location if you move it. Installation logs are saved in `logs/install.log`.
 
 Kali ARM64 and an existing graphical session are required for the desktop interface. The ILI9488 display driver and the optional Pwnagotchi installation are managed on the host. The installer leaves their configuration in place.
 
@@ -24,7 +24,7 @@ Kali ARM64 and an existing graphical session are required for the desktop interf
 | Launch the dashboard from the project directory | `bash run.sh` |
 | Verify startup offscreen | `bash run.sh --self-test` |
 | Start direct TFT mode | `bash run.sh --framebuffer` |
-| Check optional tools | `bash install-tools.sh --check` |
+| Check package availability | `bash install-tools.sh --check` |
 | Disable dashboard login startup | `bash autostart.sh disable` |
 | Remove managed user entries | `bash uninstall.sh` |
 
