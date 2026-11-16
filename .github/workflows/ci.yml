@@ -29,6 +29,8 @@ jobs:
         run: python3 -m unittest discover -s tests -v
       - name: Render offscreen dashboard
         run: ./run.sh --self-test
+      - name: Verify source integrity after tests
+        run: sha256sum -c docs/REPOSITORY-FILES.sha256
       - name: Build installable distributions
         run: |
           python3 scripts/build_python.py

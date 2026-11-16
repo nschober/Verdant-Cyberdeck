@@ -1,8 +1,8 @@
 {
   "version": "0.5.0",
   "portable_tests": {
-    "total": 86,
-    "passed": 85,
+    "total": 87,
+    "passed": 86,
     "skipped": 1
   },
   "python_syntax": "passed",

@@ -87,6 +87,6 @@ Clean-export run on this Pi: **72 tests, 71 passed, one expected host-only prese
 
 ## Installable 0.5.0 distribution — resumed validation
 
-Clean-export suite: **86 tests, 85 passed and one expected host-local preservation-manifest skip**. Python/shell syntax passed. Wheel startup outside the checkout and startup from a read-only extracted Debian application tree were validated before reboot; GitHub CI also builds packages and tests the installed wheel. Saved navigation-history and Wi-Fi color changes are preserved and tested.
+Clean-export suite: **87 tests, 86 passed and one expected host-local preservation-manifest skip**. Python/shell syntax passed. Wheel startup outside the checkout and startup from a read-only extracted Debian application tree were validated before reboot; GitHub CI also builds packages and tests the installed wheel. Saved navigation-history and Wi-Fi color changes are preserved and tested.
 
 The fresh Pwnagotchi installer has not been run on this existing Pi: it deliberately refuses the existing installation. Missing RF package/source builds still require the host installer; Mayhem firmware has not been flashed, and archive download was blocked by the restricted execution session’s DNS policy. Physical battery/runtime, live Mayhem/SDR and post-apply CPU measurements remain separate acceptance checks. See [distribution evidence](docs/evidence/distribution-validation.json).

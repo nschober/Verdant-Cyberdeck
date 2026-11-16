@@ -1,4 +1,5 @@
 import json
+import os
 from pathlib import Path
 import tempfile
 import unittest
@@ -43,6 +44,13 @@ class PackagingTests(unittest.TestCase):
         args=argparse.Namespace(fresh_pwn=False,complete=False,desktop=False)
         with patch('scripts.setup_package.existing',return_value=True):data=plan(args)
         self.assertTrue(data['check_only']);self.assertEqual(data['pwnagotchi_action'],'preserve and integrate existing')
+    def test_validation_previews_never_mutate_source_assets(self):
+        from cyberdeck.paths import asset_directory
+        with tempfile.TemporaryDirectory() as directory:
+            base=Path(directory);source=base/'source';(source/'assets').mkdir(parents=True)
+            with patch.dict(os.environ,{'XDG_CACHE_HOME':str(base/'cache')}):target=asset_directory(source)
+            self.assertEqual(target,base/'cache/verdant-cyberdeck/previews')
+            self.assertNotEqual(target,source/'assets')
     def test_python_package_entrypoint_and_runtime_dependencies(self):
         data=tomllib.loads((ROOT/'pyproject.toml').read_text())
         self.assertEqual(data['project']['scripts']['verdant-cyberdeck'],'cyberdeck.main:main')
