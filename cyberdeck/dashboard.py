@@ -81,6 +81,7 @@ class Dashboard:
             ('WI-FI RECON',self.wifi),('PWNAGOTCHI',self.pwn),
             ('NETWORK',lambda:self.tools('NETWORK')),('WIRELESS',lambda:self.tools('WIRELESS')),
             ('BLUETOOTH',self.bt),('TRAFFIC / WEB',lambda:self.tools('TRAFFIC / WEB'))])
+        self.buttons=[button for button in self.buttons if button.label!='BACK']
         self.buttons.append(Button('SYSTEM',(285,281,474,316),lambda:self.protect(self.system)))
 
     def text(self, title, content, controls=()):

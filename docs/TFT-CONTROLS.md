@@ -1,6 +1,6 @@
 # TFT controls and live Pwnagotchi screen
 
-The welcome screen stays visible until **Enter Main Menu** is pressed (touch, mouse, or Enter key). It now reads **Network Security Dashboard**. This supersedes the earlier four-second automatic transition. F3 previews the welcome screen again. Footer navigation uses **Main Menu** and has no Exit button. F1 returns from a native tool without stopping background Pwnagotchi.
+The welcome screen stays visible until **Enter Main Menu** is pressed (touch, mouse, or Enter key). It now reads **Network Security Dashboard**. This supersedes the earlier four-second automatic transition. F3 previews the welcome screen again. Footer navigation uses **Main Menu** and has no Exit button. Back appears on subpages and is omitted from the main menu. F1 returns from a native tool without stopping background Pwnagotchi.
 
 ## Pwnagotchi
 

@@ -23,7 +23,7 @@ CARD = (20, 73, 460, 257)
 BOLD = '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf'
 REGULAR = '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'
 ANSI = re.compile(r'\x1b\[[0-?]*[ -/]*[@-~]')
-CAPTURE = re.compile(r'^(?:\[[^\]\r\n]{1,100}\]\s*)*(!!! captured new handshake(?: on channel|:).+?!!!)\s*$',re.I)
+CAPTURE = re.compile(r'^(?:\[[^\]\r\n]{1,100}\]\s*)*(?::\s*)?(!!! captured new handshake(?: on channel|:).+?!!!)\s*$',re.I)
 
 def clean(text, limit=260):
     return ''.join(c for c in ANSI.sub('',str(text)) if c.isprintable())[:limit]
@@ -110,7 +110,9 @@ class JournalMonitor:
     def accept(self,record):
         event=capture_event(record)
         if not event or event['id'] in self.ids:return False
-        self.store.publish(event);self.ids.append(event['id']);return True
+        self.store.publish(event);self.ids.append(event['id'])
+        logging.info('Published Pwnagotchi capture notification %s',event['id'][:12])
+        return True
     def stop(self,*_):
         self.running=False
         if self.process and self.process.poll() is None:self.process.terminate()
@@ -174,7 +176,9 @@ def main():
     action.add_argument('--monitor',action='store_true');action.add_argument('--desktop',action='store_true');action.add_argument('--test-alert',action='store_true')
     args=parser.parse_args()
     if args.desktop:desktop_notifications()
-    elif args.monitor:JournalMonitor().run()
+    elif args.monitor:
+        logging.basicConfig(level=logging.INFO,format='%(asctime)s %(levelname)s %(message)s')
+        JournalMonitor().run()
     else:
         if os.geteuid()!=0:parser.error('Synthetic alert publishing requires host sudo')
         EventStore().publish({'version':1,'kind':'test','id':'test-'+str(time.time_ns()),'timestamp':time.time(),'detail':'Synthetic display test. No handshake was captured.'})

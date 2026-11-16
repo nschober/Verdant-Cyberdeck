@@ -21,6 +21,14 @@ class CaptureAlertTests(unittest.TestCase):
             self.assertIsNone(capture_event({'MESSAGE':message,'__CURSOR':'x'}))
         self.assertIsNone(capture_event({'MESSAGE':EVENT['MESSAGE']}))
         self.assertIsNone(capture_event([]))
+    def test_installed_logger_thread_prefix_and_colon_are_accepted(self):
+        message='[2026-11-15 19:41:50,979] [WARNING] [Event Polling] : !!! captured new handshake: synthetic-test-event !!!'
+        event=capture_event({'MESSAGE':message,'__CURSOR':'synthetic-thread-prefix'})
+        self.assertIsNotNone(event)
+        self.assertEqual(event['kind'],'handshake')
+        self.assertEqual(event['detail'],'captured new handshake: synthetic-test-event')
+        for bad in ('unrelated : '+message,message+' unexpected trailing text'):
+            self.assertIsNone(capture_event({'MESSAGE':bad,'__CURSOR':'synthetic-bad'}))
     def test_cursor_deduplication_and_new_events(self):
         class Store:
             events=[]

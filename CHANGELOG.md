@@ -68,3 +68,9 @@
 - Reduced mouse gain and coalesced pointer rendering replace per-event redraw/file writes.
 - Persistent Network Security Dashboard welcome screen, Enter Main Menu, and Main Menu footer without Exit.
 - Existing PAM login password protects app System/configuration pages; masked touch/physical keyboard input with no stored credentials.
+
+## Capture alert compatibility correction — 2026-11-15
+
+- Accept the installed logger’s thread prefix and separator colon, which previously prevented genuine capture notifications from being published.
+- Log a short publication ID for diagnosis without including capture details.
+- Remove Back from the main menu while retaining it on subpages.

@@ -1,0 +1,12 @@
+{
+  "tests_total": 61,
+  "passed": 60,
+  "skipped": 1,
+  "actual_capture_records_checked": 10,
+  "actual_records_accepted": 10,
+  "historical_events_published": false,
+  "desktop_client_lock": "held; existing client running",
+  "cause": "Installed logger thread prefix ends with a colon, omitted by previous parser",
+  "root_apply": "pending",
+  "physical_popup_observation": "pending"
+}

@@ -18,7 +18,7 @@ The native supervisor excludes background Pwnagotchi from screen ownership and n
 
 A new, separate `verdant-handshake-monitor.service` follows **future** journal records from `pwnagotchi.service`. It starts no radios and has no dependency that starts Pwnagotchi. It is enabled at boot so event monitoring survives closing the dashboard.
 
-The parser recognizes the installed agent's `!!! captured new handshake ... !!!` log messages, including the normal timestamp/severity prefix. Journal cursors deduplicate repeated records. Existing files, old handshake counts and unrelated log text do not trigger notifications. This reports a capture event from Pwnagotchi; it does not independently verify a complete/crackable exchange.
+The parser recognizes the installed agent's `!!! captured new handshake ... !!!` log messages, including the installed timestamp/severity/thread prefix and its separating colon. The monitor logs a short event identifier after successful publication, without capture details. Journal cursors deduplicate repeated records. Existing files, old handshake counts and unrelated log text do not trigger notifications. This reports a capture event from Pwnagotchi; it does not independently verify a complete/crackable exchange.
 
 The latest event is stored atomically in `/run/verdant-cyberdeck/handshake.json`, root-owned, group `kali`, mode 0640, with a 0750 parent directory. It contains only event metadata, not capture contents or keys. Popups expire after eight seconds. The last metadata file remains in volatile `/run` until another event or reboot.
 
@@ -57,3 +57,7 @@ Use it while the dashboard, native terminal or a desktop window is foreground. A
 Use `integrate_tft.py --restore` with the exact manifest reported by this apply. Rollback restores the backed-up Pwnagotchi unit, removes the owned headless override where newly created, restores the native renderer/runtime files, reloads systemd, and restores monitor enablement behavior. It refuses to overwrite later file edits. User launchers/autostart entries remain separately owned by the user installer/uninstaller.
 
 No Pwnagotchi reinstall, source overwrite, plugin disablement, capture deletion, learned-data migration, network-interface definition, SSH setting, driver, SPI overlay, boot-firmware file, or framebuffer mode change is part of this update. Existing plugin/hardware errors are not silently repaired by display integration.
+
+## Installed logger compatibility correction
+
+The Pi’s actual capture records use `[timestamp] [WARNING] [Event Polling] : !!! captured new handshake: ... !!!`. The earlier parser omitted the separator colon, so it rejected valid records and never wrote shared notification state. This revision accepts that exact prefix while preserving anchored marker validation and journal-cursor deduplication. Ten actual recent records were accepted in a read-only check; none were replayed or published. Root apply is required to replace the monitor’s loaded code. Physical popup observation remains pending after apply. The existing desktop client already requests topmost stacking over ordinary windows.

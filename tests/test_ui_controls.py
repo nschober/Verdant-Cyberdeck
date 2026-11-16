@@ -23,6 +23,9 @@ class UIControlTests(unittest.TestCase):
             with patch('cyberdeck.pwnagotchi.running',return_value=True):page()
             labels=[b.label for b in self.app.buttons]
             self.assertIn('MAIN MENU',labels);self.assertNotIn('EXIT',labels);self.assertNotIn('HOME',labels)
+    def test_main_menu_has_no_back_button_but_subpages_do(self):
+        self.app.home();self.assertNotIn('BACK',[b.label for b in self.app.buttons])
+        self.app.wifi();self.assertIn('BACK',[b.label for b in self.app.buttons])
     def test_both_settings_entries_require_authentication(self):
         self.app.home();next(b for b in self.app.buttons if b.label=='SYSTEM').action()
         self.assertEqual(self.app.title,'UNLOCK SETTINGS')

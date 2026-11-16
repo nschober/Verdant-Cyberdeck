@@ -76,3 +76,7 @@ The known remaining gap is host-side physical display/input validation and an ex
 Clean-export run: **59 tests, 58 passed and one expected host-only preservation-manifest skip**. Syntax compilation, shell syntax, offscreen rendering, isolated runtime canvas-bridge publication, pointer coalescing, direct service actions, OPEN/START navigation, and mocked PAM authentication/account handling passed. See [TFT controls evidence](docs/evidence/tft-controls-tests.json).
 
 The existing host-only original preservation test still reports a previously observed config checksum change; its original manifest was not rewritten. No main configuration change was made by this revision. Root host apply, physical live-screen/pointer observation, and authentication with the owner’s actual password remain pending. No real handshake was created for tests.
+
+## Popup parser and main-menu Back correction
+
+Clean-export suite: **61 tests, 60 passed, one expected host-only skip**. The corrected parser accepted all ten actual capture log records examined from the Pi; the check published no old events. The existing desktop client holds its singleton lock. The previous parser rejected these genuine records because it omitted the installed logger’s thread-prefix separator colon. Regression coverage retains strict full-message matching and rejects unrelated prefixes/trailing content. Main Menu omits Back; subpages retain it. Root apply and physical popup observation remain pending. See [evidence](docs/evidence/popup-parser-fix.json).
