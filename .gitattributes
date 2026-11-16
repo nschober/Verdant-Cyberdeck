@@ -8,3 +8,6 @@
 
 # Preserve supplied third-party source/license bytes, including original whitespace.
 pwnagotchi/installed-source/** -whitespace
+
+# Keep repository maintenance metadata out of source archives.
+/.github export-ignore
