@@ -1,3 +1,5 @@
+> **Installable package:** [Complete setup and distribution guide](docs/INSTALLABLE-PACKAGE.md). Run `bash install.sh --check` to inspect, or `sudo bash install.sh --complete` on the existing Pi. Fresh Pwnagotchi installation is an explicit separate profile and refuses an existing installation.
+
 # Verdant Cyberdeck
 
 **A passive touchscreen dashboard for a Raspberry Pi 400 running Kali Linux ARM64.**
@@ -25,7 +27,7 @@ Verdant Cyberdeck brings tool launchers, network diagnostics and controls for an
 | Traffic / Web | tcpdump, TShark, Nikto, Gobuster and SQLmap launchers |
 | System | Terminal, tmux, htop, interfaces/IP, CPU/memory, display diagnostics, logs and installation status |
 
-Includes a persistent welcome screen with Enter Main Menu, large touch targets, Back/Main Menu controls, periodic status updates, error screens and bounded background commands. The desktop and optional framebuffer backends share the same 480×320 renderer.
+Includes a persistent welcome screen with Enter Main Menu, large touch targets, Back/Main Menu controls on subpages, periodic status updates, error screens and bounded background commands. The desktop and optional framebuffer backends share the same 480×320 renderer.
 
 ![Startup splash](assets/splash.png)
 
@@ -99,7 +101,7 @@ The first exporter omitted assets, translations, entry points and some auxiliary
 
 This project **does not install, remove, overwrite or reconfigure Pwnagotchi**. It controls the original host's existing `pwnagotchi.service`, whose custom launcher uses `/root/pwnagotchi-modern` and requires `pwnagotchi-bettercap.service` and `pwngrid-peer.service`.
 
-Start/Restart directly control the existing service and its radio dependencies. OPEN displays its actual live screen while it continues in the background. System and configuration pages require the existing Kali login password. Desktop actions use the existing polkit agent through `pkexec`, without adding sudoers rules. Explicit framebuffer service handoff first releases the dashboard and then requires existing systemctl authorization. Configuration is shown read-only with credentials omitted. Keys, plugins, mode settings, learned data and network settings are not written.
+Start/Restart directly control the existing service and its radio dependencies. OPEN displays its actual live screen while it continues in the background. System and configuration pages now open directly without a password prompt. Desktop actions use the existing polkit agent through `pkexec`, without adding sudoers rules. Explicit framebuffer service handoff first releases the dashboard and then requires existing systemctl authorization. Configuration is shown read-only with credentials omitted. Keys, plugins, mode settings, learned data and network settings are not written.
 
 An inaccessible service state is shown as **unknown**, never operational. Closing the dashboard does not stop Pwnagotchi. The original unit has no dependency on this project; live operational independence still needs host-side verification.
 
@@ -145,3 +147,7 @@ Use only within explicit authorization and agreed scope. This independent projec
 ## Automatic handshake preparation
 
 The [daily handshake processor](docs/HANDSHAKE-PROCESSING.md) converts stable existing Pwnagotchi captures into one deduplicated `YYYY-MM-DD.22000` file per saved capture date and an Excel-compatible `handshakes.csv` inventory with capture, SSID/BSSID/client, type, record ID, conversion status and diagnostics. It runs independently of the dashboard, preserves originals, and starts no wireless operations or password-cracking jobs. Its separate root installer enables only the offline processing service.
+
+## Battery, RF and PortaPack
+
+The [battery/RF/Mayhem update](docs/BATTERY-RF-MAYHEM.md) adds change-driven redraws, cached fonts, an idle-aware native terminal, Pwnagotchi stats fonts +3 points, direct Settings/Configuration access, RF receive/transmit/protocol tools, isolated missing-tool builds and a Mayhem USB remote screen. The notification footer omits the expiry wording. Firmware update preparation uses the verified official release archive and never flashes implicitly. Hardware acceptance and source-tool builds require the host setup/device connection; see the guide’s precise validation limits.

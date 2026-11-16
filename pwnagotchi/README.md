@@ -1,6 +1,6 @@
 # Existing Pwnagotchi installation files
 
-This directory contains the **reviewed source exported from your existing installation**, alongside the previously captured host integration files. It is an inspection snapshot: Verdant's installer does not install, replace or execute these copies.
+This directory contains the **reviewed source exported from the existing installation**, alongside host snapshots and a fresh-install workflow. The snapshot alone remains inspection material. The [package installer](../docs/INSTALLABLE-PACKAGE.md) reconstructs complete pinned upstream source and overlays reviewed Python/TFT changes, retaining original entry points and assets. It refuses an existing Pwnagotchi installation.
 
 | Location | Contents |
 |---|---|
@@ -34,3 +34,12 @@ Bootstrap/virtualenv packages, IDE state, keys, captures, learned data and unrev
 The runtime's original **GNU GPL version 3** text is preserved at [`installed-source/LICENSE.md`](installed-source/LICENSE.md). The bundled DFRobot library's **LGPL version 2.1** notice remains at [`installed-source/pwnagotchi/ui/hw/libs/dfrobot/LICENSE`](installed-source/pwnagotchi/ui/hw/libs/dfrobot/LICENSE). The auxiliary peer-source directory retains its own original GPL text and other notices. Retained headers and notices must be reviewed for the corresponding files.
 
 **Verdant's root MIT license does not relicense this supplied Pwnagotchi source or its bundled libraries.** The separate host-integration snapshots retain any original headers; their independent upstream licensing has not been established beyond the provenance supplied by this installation.
+
+## Fresh-install components
+
+- `../scripts/materialize_pwnagotchi.py`: clones verified upstream commit `6cdc89226478fd42d7bcca6a9faa05d9f3280701` and applies a hashed Python/TFT overlay; it never copies redacted configuration snapshots.
+- `installer/requirements-pi400.txt`: direct dependency pins from the working Python 3.11 / Torch 2.5.1 Pi runtime.
+- `../scripts/install_pwnagotchi_fresh.py`: an explicit fresh-host-only installer that generates private configuration, installs the isolated runtime and matching dependencies, and leaves Pwnagotchi services stopped/disabled.
+- `../install.sh --complete --fresh-pwn --interface wlan1`: complete fresh-host profile after confirming the dedicated interface and existing working ILI9488 driver. This flag is refused on the existing Pi.
+
+See the package guide for limitations, licensing and rollback. A fresh installation was not performed on the working Pi.

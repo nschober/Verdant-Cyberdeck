@@ -4,12 +4,15 @@ from logging.handlers import RotatingFileHandler
 import os
 from pathlib import Path
 import sys
+from . import __version__
 from .dashboard import Dashboard
+from .paths import log_directory,asset_directory
 
 ROOT = Path(__file__).resolve().parents[1]
 
 def main():
     parser=argparse.ArgumentParser(description='Network Security Dashboard')
+    parser.add_argument('--version',action='version',version='Verdant Cyberdeck '+__version__)
     parser.add_argument('--framebuffer',action='store_true',help='Explicit TFT backend; refuses existing TFT owners')
     parser.add_argument('--self-test',action='store_true',help='Exercise pages offscreen; never touch radios or services')
     parser.add_argument('--smoke-test',action='store_true',help='Open existing desktop display and exit after two seconds')
@@ -19,8 +22,9 @@ def main():
         from .alerts import desktop_notifications
         desktop_notifications()
         return
-    (ROOT/'logs').mkdir(exist_ok=True)
-    logging.basicConfig(level=logging.INFO,handlers=[RotatingFileHandler(ROOT/'logs/cyberdeck.log',maxBytes=500000,backupCount=2)],format='%(asctime)s %(levelname)s %(message)s')
+    logs=log_directory()
+    logs.mkdir(parents=True,exist_ok=True)
+    logging.basicConfig(level=logging.INFO,handlers=[RotatingFileHandler(logs/'cyberdeck.log',maxBytes=500000,backupCount=2)],format='%(asctime)s %(levelname)s %(message)s')
     logging.info('Starting dashboard: %s',args)
     if args.self_test:
         app=Dashboard()
@@ -29,9 +33,9 @@ def main():
             page()
             assert app.render().size==(480,320)
         app.home()
-        app.render().save(ROOT/'assets/dashboard.png')
+        app.render().save(asset_directory(ROOT)/'dashboard.png')
         app.splash_until=float('inf')
-        app.render().save(ROOT/'assets/splash.png')
+        app.render().save(asset_directory(ROOT)/'splash.png')
         app.shutdown()
         print('Offscreen page rendering passed; hardware not exercised.')
         return
@@ -43,7 +47,7 @@ def main():
             desktop(args.smoke_test)
     except Exception as exc:
         logging.exception('Startup failed')
-        print(f'Cyberdeck startup failed: {exc}\nSee {ROOT}/logs/cyberdeck.log',file=sys.stderr)
+        print(f'Cyberdeck startup failed: {exc}\nSee {logs}/cyberdeck.log',file=sys.stderr)
         raise SystemExit(1)
 
 def desktop(smoke=False):
@@ -75,10 +79,14 @@ def desktop(smoke=False):
     canvas.bind('<Button-4>',lambda e:app.scroll(-3))
     canvas.bind('<Button-5>',lambda e:app.scroll(3))
     image_id=canvas.create_image(0,0,anchor='nw')
+    painted=[None]
     def refresh():
         app.tick()
-        canvas.photo=ImageTk.PhotoImage(app.render())
-        canvas.itemconfigure(image_id,image=canvas.photo)
+        key=app.visual_key()
+        if key!=painted[0]:
+            canvas.photo=ImageTk.PhotoImage(app.render())
+            canvas.itemconfigure(image_id,image=canvas.photo)
+            painted[0]=app.visual_key()
         root.after(100,refresh)
     refresh()
     if smoke:

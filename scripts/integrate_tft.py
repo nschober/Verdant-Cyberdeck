@@ -275,7 +275,7 @@ def patch_pwn_unit(source):
     return '\n'.join(lines)+'\n'
 
 
-def patch_terminal(source):
+def _patch_terminal_v1(source):
     marker='# VERDANT HANDSHAKE OVERLAY v1'
     if marker in source:
         compile(source,str(TERMINAL),'exec');return source
@@ -286,6 +286,19 @@ def patch_terminal(source):
     source=source.replace(anchor,anchor+"import sys\nsys.path.insert(0, '/usr/local/lib/verdant-cyberdeck')\nfrom cyberdeck.alerts import AlertReader\n"+marker+"\nverdant_alerts = AlertReader()\n",1)
     source=source.replace(frame,'    draw_pointer(draw)\n    verdant_alerts.draw(image)\n    fb.seek(0)\n',1)
     compile(source,str(TERMINAL),'exec');return source
+
+
+def patch_terminal(source):
+    source=_patch_terminal_v1(source)
+    marker='# VERDANT TERMINAL BATTERY v2'
+    if marker in source:return source
+    source=source.replace('verdant_alerts = AlertReader()\n',"verdant_alerts = AlertReader()\nfrom cyberdeck.file_events import FileEvents\n"+marker+"\npointer_wake = FileEvents(['/tmp/kali-tft-pointer.json'])\nlast_terminal_key = None\n",1)
+    source=source.replace('def render():\n',"def render():\n    global last_terminal_key\n    try:\n        pointer_stamp = Path('/tmp/kali-tft-pointer.json').stat().st_mtime_ns\n    except OSError:\n        pointer_stamp = None\n    event = verdant_alerts.current()\n    key = (screen.cursor.x, screen.cursor.y, screen.cursor.hidden, scroll, pointer_stamp, event.get('id') if event else None)\n    if not screen.dirty and key == last_terminal_key:\n        return\n    last_terminal_key = key\n    screen.dirty.clear()\n",1)
+    source=source.replace('[master, fifo_fd], [], [], 0.15','[master, fifo_fd] + ([pointer_wake.fd] if pointer_wake.fd is not None else []), [], [], 0.25',1)
+    source=source.replace('        for fd in ready:\n',"        for fd in ready:\n            if fd == pointer_wake.fd:\n                pointer_wake.drain()\n                continue\n",1)
+    source=source.replace('finally:\n    shell.terminate()', 'finally:\n    pointer_wake.close()\n    shell.terminate()',1)
+    compile(source,str(TERMINAL),'exec')
+    return source
 
 
 def _patch_launcher_v3(source, background=False):
@@ -310,7 +323,7 @@ def _patch_launcher_v3(source, background=False):
     compile(source,str(LAUNCHER),'exec');return source
 
 
-def patch_launcher(source, background=False):
+def _patch_launcher_v4(source, background=False):
     source=_patch_launcher_v3(source,background)
     marker='# VERDANT RESPONSIVE INPUT v4'
     if marker in source:return source
@@ -333,6 +346,25 @@ def patch_launcher(source, background=False):
     start=source.find('    # LOCAL SETTINGS PANEL')
     end=source.index('    def touch_settings',start) if start>=0 else -1
     if start>=0:source=source[:start]+"    def open_settings():\n        native.protect(lambda:native.text('PWNAGOTCHI CONFIG', __import__('cyberdeck.pwnagotchi',fromlist=['configuration']).configuration()))\n\n"+source[end:]
+    compile(source,str(LAUNCHER),'exec')
+    return source
+
+
+def patch_launcher(source, background=False):
+    source=_patch_launcher_v4(source,background)
+    marker='# VERDANT BATTERY REPAINT v5'
+    if marker in source:return source
+    source=source.replace('# VERDANT RESPONSIVE INPUT v4','# VERDANT RESPONSIVE INPUT v4\n'+marker,1)
+    source=source.replace('frame_cache is None or time.monotonic()-frame_at>=0.1','frame_cache is None or native.needs_redraw()',1)
+    source=source.replace('        native.tick()\n',"        if mode is None or not native.events.empty():\n            native.tick()\n",1)
+    source=source.replace('motion.sync(*coordinates)', 'motion.sync(*coordinates)\n                        pointer_dirty=True',1)
+    source=source.replace('time.monotonic() - last_owner_scan > 3.0','time.monotonic() - last_owner_scan > 15.0',1)
+    source=source.replace('if mode is None and time.monotonic()-last_draw>=1/30:',
+                          'if mode is None and time.monotonic()-last_draw>=1/30 and (pointer_dirty or native.needs_redraw()):',1)
+    source=source.replace('select.select(devices, [], [], 0.01)',
+                          'select.select(devices, [], [], 0.033 if pointer_dirty or (mode is None and native.needs_redraw()) else 0.25)',1)
+    source=source.replace("        if owner.returncode:\n            raise RuntimeError('Cannot verify existing TFT ownership: ' + candidate)",
+        "        if owner.returncode:\n            missing = subprocess.run(['systemctl','show','--property=LoadState','--value',candidate],capture_output=True,text=True,timeout=5)\n            if missing.stdout.strip() == 'not-found':\n                continue\n            raise RuntimeError('Cannot verify existing TFT ownership: ' + candidate)",1)
     compile(source,str(LAUNCHER),'exec')
     return source
 

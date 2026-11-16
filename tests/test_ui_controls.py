@@ -26,38 +26,36 @@ class UIControlTests(unittest.TestCase):
     def test_main_menu_has_no_back_button_but_subpages_do(self):
         self.app.home();self.assertNotIn('BACK',[b.label for b in self.app.buttons]);self.assertNotIn('MAIN MENU',[b.label for b in self.app.buttons])
         self.app.wifi();self.assertIn('BACK',[b.label for b in self.app.buttons]);self.assertIn('MAIN MENU',[b.label for b in self.app.buttons])
-    def test_both_settings_entries_require_authentication(self):
+    def test_settings_and_config_open_without_password(self):
         self.app.home();next(b for b in self.app.buttons if b.label=='SYSTEM').action()
-        self.assertEqual(self.app.title,'UNLOCK SETTINGS')
-        self.app.home()
+        self.assertEqual(self.app.title,'SYSTEM');self.assertIsNone(self.app.auth_target)
         with patch('cyberdeck.pwnagotchi.running',return_value=True):self.app.pwn()
-        with patch('cyberdeck.pwnagotchi.configuration') as config:
+        with patch('cyberdeck.pwnagotchi.configuration',return_value='Configuration information') as config:
             next(b for b in self.app.buttons if b.label=='CONFIGURATION').action()
-            config.assert_not_called()
-            self.assertEqual(self.app.title,'UNLOCK SETTINGS')
-    def test_auth_failure_and_success_and_cancelled_result(self):
-        calls=[];self.app.protect(lambda:calls.append('opened'))
-        token=self.app.generation
-        self.app.events.put((('auth',token),False));self.app.tick()
-        self.assertEqual(calls,[]);self.assertIn('failed',self.app.auth_message)
-        self.app.events.put((('auth',token),True));self.app.tick()
-        self.assertEqual(calls,['opened'])
-        self.app.protect(lambda:calls.append('stale'));token=self.app.generation;self.app.home()
-        self.app.events.put((('auth',token),True));self.app.tick()
-        self.assertEqual(calls,['opened'])
-    def test_all_password_keys_fit_and_cover_printable_ascii(self):
-        import string
-        self.app.protect(lambda:None);keys=set()
-        for symbols in (False,True):
-            for shift in (False,True):
-                self.app.auth_symbols=symbols;self.app.auth_shift=shift;self.app.auth_keyboard()
-                for b in self.app.buttons:
-                    self.assertTrue(0<=b.rect[0]<b.rect[2]<=480)
-                    self.assertTrue(0<=b.rect[1]<b.rect[3]<=320)
-                    if len(b.label)==1:keys.add(b.label)
-        self.assertTrue(set(string.ascii_letters+string.digits+string.punctuation)<=keys)
-        self.app.password_key(' ');self.app.password_key('x');self.app.password_key('BACKSPACE')
-        self.assertEqual(self.app.password,' ');self.app.home();self.assertEqual(self.app.password,'')
+            config.assert_called_once();self.assertEqual(self.app.title,'PWNAGOTCHI CONFIG')
+            self.assertIsNone(self.app.auth_target)
+    def test_back_restores_previous_screen_and_scroll(self):
+        self.app.rf_menu()
+        self.app.tools('RF SPECTRUM')
+        self.app.text('DETAILS', '\n'.join(str(i) for i in range(40)))
+        self.app.scroll(7)
+        self.app.text('HELP', 'help')
+        for title in ('DETAILS', 'RF SPECTRUM', 'RF TOOLS', 'VERDANT CYBERDECK'):
+            next(b for b in self.app.buttons if b.label == 'BACK').action()
+            self.assertEqual(self.app.title, title)
+            if title == 'DETAILS':
+                self.assertEqual(self.app.offset, 7)
+        self.assertEqual(self.app.history, [])
+
+    def test_refresh_does_not_add_history_and_main_menu_clears_it(self):
+        self.app.wifi()
+        self.app.text('ACCESS POINTS', 'first')
+        self.app.text('ACCESS POINTS', 'refreshed')
+        self.app.back()
+        self.assertEqual(self.app.title, 'WI-FI RECON')
+        self.app.rf_menu()
+        next(b for b in self.app.buttons if b.label == 'MAIN MENU').action()
+        self.assertEqual(self.app.history, [])
     def test_reduced_motion_keeps_subpixel_movement_and_clamps(self):
         m=PointerMotion(0,0)
         for _ in range(10):m.move('x',1)
@@ -95,7 +93,7 @@ class UIControlTests(unittest.TestCase):
     def test_launcher_batches_motion_and_retains_protected_legacy_settings(self):
         source=patch_launcher((ROOT/'pwnagotchi/host-snapshot/tft/launcher.py').read_text(),True)
         self.assertIn('PointerMotion',source);self.assertIn('pointer_dirty=True',source)
-        self.assertIn('1/30',source);self.assertIn('0.01)',source)
+        self.assertIn('1/30',source);self.assertIn('native.needs_redraw()',source);self.assertIn('else 0.25)',source)
         self.assertNotIn('native.pwn()',source)
         self.assertEqual(patch_launcher(source,True),source)
 

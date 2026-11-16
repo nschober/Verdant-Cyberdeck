@@ -17,16 +17,33 @@ jobs:
       - name: Install test runtime
         run: |
           sudo apt-get update
-          sudo apt-get install --no-install-recommends -y python3-tk python3-pil python3-pil.imagetk python3-evdev xterm fonts-dejavu-core
+          sudo apt-get install --no-install-recommends -y python3-tk python3-pil python3-pil.imagetk python3-evdev python3-pyte python3-setuptools python3-wheel python3-venv xterm fonts-dejavu-core
       - name: Compile Python
-        run: python3 -m compileall -q cyberdeck manage.py verify.py
+        run: python3 -m compileall -q cyberdeck scripts manage.py verify.py
       - name: Validate shell syntax
         run: |
-          for script in *.sh; do bash -n "$script"; done
+          for script in *.sh scripts/*.sh; do bash -n "$script"; done
       - name: Check publication boundaries
         run: python3 scripts/check_publication.py
       - name: Run portable behavioral tests
         run: python3 -m unittest discover -s tests -v
       - name: Render offscreen dashboard
         run: ./run.sh --self-test
-      # No installer, service control, discovery, privileged app or hardware test runs in CI.
+      - name: Build installable distributions
+        run: |
+          python3 scripts/build_python.py
+          python3 scripts/build_deb.py
+          sha256sum dist/* > dist/SHA256SUMS
+      - name: Verify packaged wheel startup
+        run: |
+          python3 -m venv --system-site-packages /tmp/verdant-package-check
+          /tmp/verdant-package-check/bin/python -m pip install --no-deps dist/*.whl
+          cd /tmp
+          /tmp/verdant-package-check/bin/verdant-cyberdeck --self-test
+      - name: Upload installable distributions
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: verdant-cyberdeck-0.5.0
+          path: dist/
+          retention-days: 30
+      # No system installer, service control, RF discovery, firmware flashing or hardware test runs in CI.

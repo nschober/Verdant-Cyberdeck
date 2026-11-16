@@ -16,6 +16,7 @@ import subprocess
 import tempfile
 import time
 from PIL import ImageDraw, ImageFont
+from .rendering import font as cached_font
 
 STATE = Path('/run/verdant-cyberdeck/handshake.json')
 LIFETIME = 8.0
@@ -91,7 +92,7 @@ class AlertReader:
         draw.rectangle((14,67,466,263),fill='#020705')
         draw.rounded_rectangle(CARD,radius=12,fill='#123324',outline='#91ffb4',width=3)
         title='TEST NOTIFICATION' if event['kind']=='test' else 'HANDSHAKE CAPTURED'
-        font=ImageFont.truetype(BOLD,19);body=ImageFont.truetype(REGULAR,13)
+        font=cached_font(BOLD,19);body=cached_font(REGULAR,13)
         box=draw.textbbox((0,0),title,font=font)
         draw.text(((480-(box[2]-box[0]))/2,88),title,font=font,fill='#a0ffc1')
         text=clean(event.get('detail',''));lines=[];line=''
@@ -100,8 +101,8 @@ class AlertReader:
             line+=char
         lines.append(line)
         for i,line in enumerate(lines[:4]):draw.text((39,126+i*18),line,font=body,fill='#f0fff4')
-        footer=('Display test • no capture • clears after 8 seconds' if event['kind']=='test' else 'Reported by Pwnagotchi • clears after 8 seconds')
-        draw.text((39,229),footer,font=ImageFont.truetype(REGULAR,11),fill='#a9c8b4')
+        footer=('Display test • no capture' if event['kind']=='test' else 'Reported by Pwnagotchi')
+        draw.text((39,229),footer,font=cached_font(REGULAR,11),fill='#a9c8b4')
         return True
 
 class JournalMonitor:

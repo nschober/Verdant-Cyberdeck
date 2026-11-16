@@ -80,3 +80,13 @@
 - Added passive stable-capture conversion with the existing hcxpcapngtool, daily mode-22000 aggregation and deduplication.
 - Added a 22-column Excel-compatible CSV inventory, safe cell escaping, source-version history and conversion diagnostics.
 - Added an independent network-isolated systemd service installer with verified backup/rollback; no Pwnagotchi or network configuration changes.
+
+## 0.5.0 — installable distribution, battery, RF and Mayhem
+
+- Added full source/Debian distributions, Python wheel, one setup entry point, declared dependencies and CI artifact builds.
+- Added a protected fresh-host Pwnagotchi materializer/installer with pinned complete upstream source, reviewed TFT overlay, Python 3.11 runtime pins and verified peer artifact. Existing Pwnagotchi is never reinstalled.
+- Replaced continuous native repainting with change-driven frames, cached fonts and an idle-aware terminal with pointer wakeups.
+- Increased Pwnagotchi stats fonts by three points through the service-scoped bridge.
+- Removed Settings/Configuration password prompts and popup expiry wording.
+- Added RF receive/transmit, GSM, protocol and spectrum launchers; missing tools have isolated user build workflows.
+- Added original Mayhem USB remote-screen/control client and a checksum-verified firmware archive preparer. Firmware flashing and SD writes remain separate hardware-specific actions.

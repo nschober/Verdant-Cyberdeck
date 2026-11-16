@@ -10,6 +10,9 @@ TOOLS = {
  'SYSTEM': [('tmux','tmux',[]), ('htop','htop',[]), ('Terminal','bash',[])]
 }
 
+from .rf import GROUPS
+TOOLS.update(GROUPS)
+
 def terminal_command(argv):
     terminal = installed('xterm')
     if not terminal:

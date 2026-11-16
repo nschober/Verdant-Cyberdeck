@@ -9,6 +9,9 @@ import time
 from PIL import Image, ImageDraw, ImageFont
 from . import pwnagotchi, wifi_recon, bluetooth, system_status, launchers
 from .backend import run, installed
+from .rendering import font as cached_font
+from . import rf
+from .paths import log_directory
 from .splash import render_splash, SPLASH_SECONDS
 
 BG, PANEL, GREEN, WHITE = '#07140f', '#133326', '#67fa9f', '#ebfff2'
@@ -26,7 +29,7 @@ class Button:
 
 class Dashboard:
     def __init__(self, close=lambda:None, framebuffer=False, log_path=None):
-        self.log_path = Path(log_path) if log_path else Path(__file__).resolve().parents[1]/'logs/cyberdeck.log'
+        self.log_path = Path(log_path) if log_path else log_directory()/'cyberdeck.log'
         self.close = close
         self.framebuffer = framebuffer
         self.pool = ThreadPoolExecutor(max_workers=3)
@@ -34,6 +37,7 @@ class Dashboard:
         self.generation = 0
         self.buttons = []
         self.lines = []
+        self.line_colors = []
         self.offset = 0
         self.title = 'VERDANT CYBERDECK'
         self.status = 'Checking network and Pwnagotchi…'
@@ -48,26 +52,51 @@ class Dashboard:
         self.auth_message = "Kali login password"
         self.items = None
         self.body = ''
+        self.history = []
+        self.restoring = False
         self.home()
 
     def shutdown(self):
+        if self.mayhem_remote:self.mayhem_remote.close()
         self.pool.shutdown(wait=False, cancel_futures=True)
         logging.info('Clean dashboard exit; no services stopped')
         self.close()
 
     def reset(self, title):
+        if self.buttons and title != self.title and not self.restoring:
+            self.history.append({key: getattr(self, key) for key in
+                                 ('title', 'buttons', 'lines', 'line_colors', 'items', 'offset', 'body', 'pwn_screen')})
+        remote=getattr(self,'mayhem_remote',None)
+        if remote is not None:remote.close()
+        self.mayhem_remote=None
         self.pwn_screen = False
         self.password = ''
         self.auth_target = None
         self.auth_busy = False
         self.generation += 1
         self.title = title
-        self.buttons = [Button('BACK', (6,281,108,316), self.home),
+        self.buttons = [Button('BACK', (6,281,108,316), self.back),
                         Button('MAIN MENU',(114,281,279,316),self.home)]
         self.lines = []
         self.items = None
         self.offset = 0
         self.busy = False
+
+    def back(self):
+        if not self.history:
+            return self.home()
+        previous = self.history.pop()
+        self.restoring = True
+        try:
+            self.reset(previous['title'])
+            if previous['title'] == 'MAYHEM LIVE':
+                # A live remote is closed when leaving its page; reconnect on return.
+                self.open_mayhem()
+            else:
+                for key, value in previous.items():
+                    setattr(self, key, value)
+        finally:
+            self.restoring = False
 
     def grid(self, title, items):
         self.reset(title)
@@ -82,7 +111,9 @@ class Dashboard:
             ('NETWORK',lambda:self.tools('NETWORK')),('WIRELESS',lambda:self.tools('WIRELESS')),
             ('BLUETOOTH',self.bt),('TRAFFIC / WEB',lambda:self.tools('TRAFFIC / WEB'))])
         self.buttons=[button for button in self.buttons if button.label not in ('BACK','MAIN MENU')]
+        self.buttons.append(Button('RF TOOLS',(6,281,279,316),self.rf_menu))
         self.buttons.append(Button('SYSTEM',(285,281,474,316),lambda:self.protect(self.system)))
+        self.history.clear()
 
     def text(self, title, content, controls=()):
         self.reset(title)
@@ -96,15 +127,30 @@ class Dashboard:
     def set_content(self, content):
         self.body = str(content)
         self.lines = []
-        font=ImageFont.truetype(FONT,12)
-        for line in self.body.expandtabs(2).splitlines():
+        self.line_colors = []
+        colors = getattr(content, 'colors', [])
+        position = 0
+        font=cached_font(FONT,12)
+        for raw_line in self.body.splitlines(keepends=True):
+            line = raw_line.rstrip('\r\n')
             current=''
-            for char in line:
-                if font.getlength(current+char)>366:
-                    self.lines.append(current)
-                    current=''
-                current+=char
+            current_colors=[]
+            column=0
+            for index, char in enumerate(line):
+                color=colors[position+index] if position+index<len(colors) else None
+                expanded=' '*(2-column%2) if char=='\t' else char
+                column+=len(expanded)
+                for glyph in expanded:
+                    if font.getlength(current+glyph)>366:
+                        self.lines.append(current)
+                        self.line_colors.append(current_colors)
+                        current=''
+                        current_colors=[]
+                    current+=glyph
+                    current_colors.append(color or WHITE)
             self.lines.append(current)
+            self.line_colors.append(current_colors)
+            position+=len(raw_line)
         self.offset = 0
 
     def scroll(self, amount):
@@ -120,7 +166,7 @@ class Dashboard:
             except Exception as exc:
                 logging.exception('Action failed: %s',title)
                 content = 'ERROR: '+str(exc)
-            self.events.put((token,str(content)))
+            self.events.put((token,content))
         self.pool.submit(work)
 
     def pwn(self):
@@ -148,6 +194,35 @@ class Dashboard:
         except Exception as exc:
             self.text('SERVICE ERROR',str(exc))
 
+    def rf_menu(self):
+        self.grid('RF TOOLS',[
+            ('RF HARDWARE',lambda:self.job('RF HARDWARE',rf.hardware)),
+            ('SDR / SPECTRUM',lambda:self.tools('RF SPECTRUM')),
+            ('SUB-GHZ / PROTOCOLS',lambda:self.tools('RF PROTOCOLS')),
+            ('GSM TOOLS',lambda:self.tools('RF GSM')),
+            ('DEVICE / RX / TX',lambda:self.tools('RF DEVICES')),
+            ('MAYHEM / PORTAPACK',self.mayhem_menu)])
+
+    def mayhem_menu(self):
+        from .mayhem import devices
+        found=devices()
+        self.text('MAYHEM / PORTAPACK',('Detected: '+', '.join(found)) if found else 'No Mayhem USB serial device detected. Connect the powered PortaPack with a data USB cable and keep it in normal Mayhem mode. Firmware must support info and screenframeshort.',[
+            ('CONNECT / OPEN',self.open_mayhem),('REFRESH DEVICES',self.mayhem_menu)])
+
+    def open_mayhem(self):
+        from .mayhem import devices,Remote
+        found=devices()
+        if len(found)!=1:
+            self.text('MAYHEM USB','Connect exactly one Mayhem PortaPack USB device, then Refresh Devices.',[('REFRESH DEVICES',self.mayhem_menu)])
+            return
+        self.reset('MAYHEM LIVE')
+        self.mayhem_remote=Remote(found[0])
+        remote=self.mayhem_remote
+        self.buttons=[Button('MAIN MENU',(6,281,210,316),self.home),Button('RF TOOLS',(216,281,474,316),self.rf_menu)]
+        for label,rect,code in [('UP',(318,45,394,85),4),('LEFT',(240,90,314,130),2),('OK',(320,90,394,130),5),('RIGHT',(400,90,474,130),1),('DOWN',(318,135,394,175),3),('ROTATE -',(240,185,354,225),7),('ROTATE +',(360,185,474,225),8)]:
+            self.buttons.append(Button(label,rect,lambda c=code:remote.button(c)))
+        self.buttons.append(Button('REFRESH SCREEN',(240,235,474,273),lambda:remote.enqueue('refresh')))
+
     def wifi(self):
         self.grid('WI-FI RECON',[
             ('ADAPTERS',lambda:self.job('WIRELESS ADAPTERS',wifi_recon.adapters)),
@@ -159,19 +234,20 @@ class Dashboard:
         self.job('ACCESS POINTS',lambda:wifi_recon.scan(order),[('REFRESH',lambda:self.wifi_scan(order)),('SORT '+('SSID' if order=='signal' else 'SIGNAL'),lambda:self.wifi_scan('ssid' if order=='signal' else 'signal'))])
 
     def tools(self, group):
-        items = [(name+(' [OK]' if installed(exe) else ' [MISSING]'), lambda n=name,e=exe,a=args:self.tool(n,e,a)) for name,exe,args in launchers.TOOLS[group]]
+        items = [(name+(' [OK]' if (rf.tool_path(exe) if group.startswith('RF ') else installed(exe)) else ' [MISSING]'), lambda n=name,e=exe,a=args:self.tool(n,e,a)) for name,exe,args in launchers.TOOLS[group]]
         if group=='WIRELESS':
             items.append(('ADAPTER STATUS',lambda:self.job('WIRELESS STATUS',wifi_recon.capabilities)))
         self.grid(group,items)
 
     def tool(self, name, exe, args):
-        self.text(name,f"Executable: {installed(exe) or 'NOT INSTALLED'}\nLaunch opens the normal interface or useful help. No targets or radio changes are selected automatically.\nDesktop terminals use the current graphical session.\nFor authorized testing only.",[
-            ('OPEN TERMINAL',lambda:self.launch(exe,args)),
-            ('HELP ON SCREEN',lambda:self.job(name+' HELP',lambda:run([exe, *(args or ['--help'])],timeout=20).output))])
+        self.text(name,f"Executable: {rf.tool_path(exe) or 'NOT INSTALLED'}\nLaunch opens the normal interface or useful help. No targets or radio changes are selected automatically.\nDesktop terminals use the current graphical session.\nFor authorized testing only.",[
+            ('OPEN DESKTOP GUI' if exe in rf.GUI else 'OPEN TERMINAL',lambda:self.launch(exe,args)),
+            ('HARDWARE INFO' if exe in rf.GUI else 'HELP IN TERMINAL' if self.framebuffer and rf.user_tool_path(exe) else 'HELP ON SCREEN',lambda:self.job('RF HARDWARE',rf.hardware) if exe in rf.GUI else self.launch(exe,args or ['--help']) if self.framebuffer and rf.user_tool_path(exe) else self.job(name+' HELP',lambda:run([rf.tool_path(exe) or exe, *(args or ['--help'])],timeout=20).output))])
 
     def launch(self, exe, args):
         try:
-            launchers.launch(exe,args)
+            if exe in rf.GUI:rf.launch_gui(exe)
+            else:launchers.launch(exe,args)
         except Exception as exc:
             self.text('LAUNCH ERROR',str(exc))
 
@@ -192,12 +268,8 @@ class Dashboard:
             ('TOOL STATUS',lambda:self.text('INSTALLED TOOLS','\n'.join(f'{name}: {installed(exe) or "MISSING"}' for group in launchers.TOOLS.values() for name,exe,_ in group)))])
 
     def protect(self, callback):
-        self.reset('UNLOCK SETTINGS')
-        self.auth_target = callback
-        self.auth_shift = False
-        self.auth_symbols = False
-        self.auth_message = 'Kali login password'
-        self.auth_keyboard()
+        # Compatibility hook: settings/configuration no longer require a password.
+        return callback()
 
     def auth_keyboard(self):
         self.buttons = [Button('CANCEL',(6,281,150,316),self.home),
@@ -275,8 +347,8 @@ class Dashboard:
             elif token==self.generation:
                 self.busy=False
                 self.set_content(content)
-        if time.monotonic()>=self.next_status and not self.status_busy:
-            self.next_status=time.monotonic()+15
+        if time.monotonic()>=self.splash_until and time.monotonic()>=self.next_status and not self.status_busy:
+            self.next_status=time.monotonic()+30
             self.status_busy=True
             def update():
                 try:
@@ -288,6 +360,9 @@ class Dashboard:
             self.pool.submit(update)
 
     def tap(self,x,y):
+        if self.mayhem_remote and x<230 and y<280:
+            self.mayhem_remote.map_touch(x,y)
+            return
         if time.monotonic()<self.splash_until:
             if 95<=x<=385 and 275<=y<=311:self.enter_menu()
             return
@@ -301,25 +376,32 @@ class Dashboard:
                     self.text('ERROR',str(exc))
                 return
 
+    def visual_key(self):
+        return (self.generation,self.title,self.status,self.body,self.offset,self.busy,
+                self.splash_until,self.password,self.auth_message,self.auth_busy,
+                (self.mayhem_remote.revision,self.mayhem_remote.status) if self.mayhem_remote else None,
+                tuple((b.label,b.rect) for b in self.buttons))
+
     def render(self):
         im=Image.new('RGB',(480,320),BG)
         draw=ImageDraw.Draw(im)
-        fonts={size:ImageFont.truetype(FONT,size) for size in (11,12,14,17)}
+        fonts={size:cached_font(FONT,size) for size in (11,12)}
         if time.monotonic()<self.splash_until:
             remaining=self.splash_until-time.monotonic()
             return render_splash(1.0 if remaining>10 else 1.0-remaining/SPLASH_SECONDS)
+        if self.mayhem_remote:self.mayhem_remote.draw(im)
         if getattr(self,'pwn_screen',False):
             from .pwn_screen import draw_screen
             draw_screen(im)
-        title_font=ImageFont.truetype(BOLD_FONT,TITLE_SIZE)
+        title_font=cached_font(BOLD_FONT,TITLE_SIZE)
         title=self.title
         while title_font.getlength(title)>460:
             title=title[:-2]+'…' if title.endswith('…') else title[:-1]+'…'
         bounds=draw.textbbox((0,0),title,font=title_font)
-        if not getattr(self,'pwn_screen',False):draw.text(((480-(bounds[2]-bounds[0]))/2-bounds[0],2),title,font=title_font,fill=GREEN)
+        if not getattr(self,'pwn_screen',False) and not self.mayhem_remote:draw.text(((480-(bounds[2]-bounds[0]))/2-bounds[0],2),title,font=title_font,fill=GREEN)
         # Keep three short status lines inside the header.
         status=self.status.splitlines()
-        for i,line in enumerate([] if getattr(self,'pwn_screen',False) else status[:3]):
+        for i,line in enumerate([] if getattr(self,'pwn_screen',False) or self.mayhem_remote else status[:3]):
             while fonts[11].getlength(line)>461:
                 line=line[:-1]
             draw.text((8,28+i*13),line,font=fonts[11],fill=WHITE)
@@ -328,15 +410,21 @@ class Dashboard:
             x1,y1,x2,y2=button.rect
             label=button.label
             size=BUTTON_SIZE if len(label)<23 else SMALL_BUTTON_SIZE
-            button_font=ImageFont.truetype(BOLD_FONT,size)
+            button_font=cached_font(BOLD_FONT,size)
             box=draw.textbbox((0,0),label,font=button_font)
             draw.text(((x1+x2-(box[2]-box[0]))/2-box[0],(y1+y2-(box[3]-box[1]))/2-box[1]),label,font=button_font,fill=GREEN)
         if self.auth_target:
             draw.rectangle((6,69,474,97),fill=BG)
             draw.text((10,70),self.auth_message,font=fonts[12],fill=WHITE)
             draw.text((260,70),'*'*min(22,len(self.password)),font=fonts[12],fill=GREEN)
-        elif self.items is None and not getattr(self,'pwn_screen',False):
+        elif self.items is None and not getattr(self,'pwn_screen',False) and not self.mayhem_remote:
             for i,line in enumerate(self.lines[self.offset:self.offset+10]):
-                draw.text((8,112+i*16),line,font=fonts[12],fill=WHITE)
+                colors=self.line_colors[self.offset+i]
+                start=0
+                while start<len(line):
+                    end=start+1
+                    while end<len(line) and colors[end]==colors[start]:end+=1
+                    draw.text((8+fonts[12].getlength(line[:start]),112+i*16),line[start:end],font=fonts[12],fill=colors[start])
+                    start=end
             draw.text((387,168),f'{self.offset+1}/{len(self.lines)}',font=fonts[11],fill=GREEN)
         return im

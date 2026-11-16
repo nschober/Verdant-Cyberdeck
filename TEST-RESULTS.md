@@ -84,3 +84,9 @@ Clean-export suite: **61 tests, 60 passed, one expected host-only skip**. The co
 ## Daily handshake processor and spreadsheet
 
 Clean-export run on this Pi: **72 tests, 71 passed, one expected host-only preservation-manifest skip**. Eleven processor tests cover aggregation/deduplication by saved date, the 22-column CSV ledger and formula escaping, preserved source versions, checkpoint recovery, unchanged-file deferral, failure/no-usable-hash handling, record parsing, symlink refusal, independent service settings and actual installed hcxpcapngtool behavior on a synthetic empty PCAP. Python/shell syntax and unit-setting tests passed. Full systemd-analyze verification was unavailable: the execution sandbox denied required socket options. No new radio operation or password-cracking job was run. Root service install and real capture conversion remain pending. CI can additionally skip the installed-converter test when hcxtools is unavailable. See [evidence](docs/evidence/handshake-processing-tests.json).
+
+## Installable 0.5.0 distribution — resumed validation
+
+Clean-export suite: **86 tests, 85 passed and one expected host-local preservation-manifest skip**. Python/shell syntax passed. Wheel startup outside the checkout and startup from a read-only extracted Debian application tree were validated before reboot; GitHub CI also builds packages and tests the installed wheel. Saved navigation-history and Wi-Fi color changes are preserved and tested.
+
+The fresh Pwnagotchi installer has not been run on this existing Pi: it deliberately refuses the existing installation. Missing RF package/source builds still require the host installer; Mayhem firmware has not been flashed, and archive download was blocked by the restricted execution session’s DNS policy. Physical battery/runtime, live Mayhem/SDR and post-apply CPU measurements remain separate acceptance checks. See [distribution evidence](docs/evidence/distribution-validation.json).

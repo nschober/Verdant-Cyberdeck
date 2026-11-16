@@ -123,7 +123,7 @@ class NativeSupervisorTests(unittest.TestCase):
             def select_events(*args):
                 select_calls[0]+=1
                 if select_calls[0]>1:raise StopLoop()
-                external_active[0]=True;clock[0]=104.0
+                external_active[0]=True;clock[0]=116.0
                 return [],[],[]
             def host_command(args,**kwargs):
                 state='active' if external_active[0] and args[-1]=='pwnagotchi.service' else 'inactive'

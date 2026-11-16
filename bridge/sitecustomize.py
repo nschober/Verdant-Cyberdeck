@@ -10,6 +10,15 @@ if os.environ.get('VERDANT_PWN_SCREEN')=='1':
         def create_module(self,spec):return self.original.create_module(spec)
         def exec_module(self,module):
             self.original.exec_module(module)
+            if module.__name__=='pwnagotchi.ui.hw.ili9488':
+                original_layout=module.ILI9488.layout
+                def layout(display):
+                    result=original_layout(display)
+                    from pwnagotchi.ui import fonts
+                    fonts.setup(19,17,19,64,28,17)
+                    return result
+                module.ILI9488.layout=layout
+                return
             original=module.Display._on_view_rendered
             last=[0.0]
             def rendered(display,image):
@@ -39,7 +48,7 @@ if os.environ.get('VERDANT_PWN_SCREEN')=='1':
             module.Display._on_view_rendered=rendered
     class CanvasFinder(importlib.abc.MetaPathFinder):
         def find_spec(self,fullname,path=None,target=None):
-            if fullname!='pwnagotchi.ui.display':return None
+            if fullname not in ('pwnagotchi.ui.display','pwnagotchi.ui.hw.ili9488'):return None
             spec=importlib.machinery.PathFinder.find_spec(fullname,path)
             if spec and spec.loader:spec.loader=CanvasLoader(spec.loader)
             return spec

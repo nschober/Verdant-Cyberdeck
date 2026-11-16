@@ -1,0 +1,11 @@
+include README.md LICENSE NOTICE.md requirements.txt *.sh manage.py verify.py
+recursive-include assets *.png
+recursive-include bridge *.py
+recursive-include scripts *.py *.sh
+recursive-include docs *.md *.json *.sha256
+recursive-include tests *.py *.toml *.service
+recursive-include pwnagotchi *
+prune logs
+prune backups
+prune dist
+global-exclude __pycache__ *.py[cod] *.pcap *.pcapng *.cap *.22000 *.hc22000 *.hccap* *.key *.pem

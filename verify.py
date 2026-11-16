@@ -7,6 +7,7 @@ from pathlib import Path
 import subprocess
 import sys
 from cyberdeck.backend import run
+from cyberdeck.paths import log_directory
 
 ROOT=Path(__file__).resolve().parent
 
@@ -45,7 +46,8 @@ def main():
         results['preservation']={'passed':all(hashlib.sha256(Path(p).read_bytes()).hexdigest()==h for p,h in preserved.items()),'output':'SHA-256 of existing Pwnagotchi configuration and service units.'}
     else:
         results['preservation']={'passed':None,'output':'No host-local preservation manifest in this checkout; no preservation claim can be made.'}
-    (ROOT/'logs/test-results.json').write_text(json.dumps(results,indent=2))
+    destination=log_directory();destination.mkdir(parents=True,exist_ok=True)
+    (destination/'test-results.json').write_text(json.dumps(results,indent=2))
     for name,result in results.items():
         state='PASS' if result['passed'] is True else 'UNAVAILABLE/FAIL' if result['passed'] is False else 'UNVERIFIED'
         print(f'{state}: {name}')

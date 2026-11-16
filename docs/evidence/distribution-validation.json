@@ -1,0 +1,23 @@
+{
+  "version": "0.5.0",
+  "portable_tests": {
+    "total": 86,
+    "passed": 85,
+    "skipped": 1
+  },
+  "python_syntax": "passed",
+  "shell_syntax": "passed",
+  "wheel_outside_checkout_startup": "passed before reboot; revalidated in CI",
+  "read_only_debian_tree_startup": "passed before reboot",
+  "fresh_pwnagotchi_install": "not run; existing installation preserved",
+  "rf_source_builds": "pending host dependency/network installation",
+  "firmware_flash": "not performed; USB device/SD backup/update required",
+  "firmware_download": "sandbox DNS restriction; archive preparer available",
+  "idle_renderer_offscreen_benchmark": {
+    "baseline_one_core_percent": 34.97,
+    "updated_one_core_percent": 1.59,
+    "baseline_frame_encodes": 57,
+    "updated_frame_encodes": 1,
+    "physical_power_or_battery_measurement": false
+  }
+}

@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "verdant-cyberdeck"
+version = "0.5.0"
+description = "480x320 Raspberry Pi cyberdeck with explicit tool controls and native TFT integration"
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+authors = [{name = "Verdant Cyberdeck contributors"}]
+dependencies = ["Pillow>=9.1", "evdev>=1.6; sys_platform == 'linux'"]
+
+[project.scripts]
+verdant-cyberdeck = "cyberdeck.main:main"
+
+[project.urls]
+Repository = "https://github.com/nschober/Verdant-Cyberdeck"
+
+[tool.setuptools]
+packages = ["cyberdeck"]

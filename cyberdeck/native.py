@@ -13,6 +13,7 @@ from .splash import render_splash, SPLASH_SECONDS
 from .backend import installed
 from . import system_status
 from .alerts import AlertReader, CARD
+from .pwn_screen import PATH as SCREEN_PATH
 
 class NativeDeck(Dashboard):
     def __init__(self, terminal, pwn_action, log_path=None, alert_reader=None):
@@ -22,6 +23,7 @@ class NativeDeck(Dashboard):
         self._selection = None
         self._blocked_touches = set()
         self._closed = False
+        self._paint_key = None
         self.native_log = Path(log_path or '/var/log/verdant-cyberdeck/native.log')
         self.native_log.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
         self._handler = RotatingFileHandler(self.native_log,maxBytes=500000,backupCount=2)
@@ -52,6 +54,7 @@ class NativeDeck(Dashboard):
         if self._closed:
             return
         self._closed = True
+        if self.mayhem_remote:self.mayhem_remote.close()
         self.pool.shutdown(wait=False,cancel_futures=True)
         self._logger.removeHandler(self._handler)
         self._handler.close()
@@ -77,11 +80,15 @@ class NativeDeck(Dashboard):
         self.pool.submit(work)
 
     def launch(self, executable, args=()):
-        path=installed(executable)
+        from .rf import user_tool_path
+        path=installed(executable) or user_tool_path(executable)
         if not path:
             self.text('NOT INSTALLED',executable+' is not installed')
             return
-        self._terminal([path,*args])
+        from .rf import GUI
+        if executable in GUI:
+            self._terminal(['/usr/bin/env','PYTHONPATH=/usr/local/lib/verdant-cyberdeck','/usr/bin/python3','-m','cyberdeck.rf','--gui',executable])
+        else:self._terminal([path,*args])
 
     @staticmethod
     def coordinate(value,minimum,maximum,pixels):
@@ -154,6 +161,22 @@ class NativeDeck(Dashboard):
                     b=items[index]
                     self.tap((b.rect[0]+b.rect[2])/2,(b.rect[1]+b.rect[3])/2)
 
+    def visual_key(self):
+        event=self.alerts.current()
+        if time.monotonic()<self.splash_until:
+            return ('splash',self._splash_pending,event.get('id') if event else None)
+        screen=None
+        if getattr(self,'pwn_screen',False):
+            try:
+                info=SCREEN_PATH.stat()
+                screen=(info.st_ino,info.st_mtime_ns,time.time()-info.st_mtime>30)
+            except OSError:screen='unavailable'
+        return (super().visual_key(),self._selection,self._splash_pending,
+                event.get('id') if event else None,screen)
+
+    def needs_redraw(self):
+        return self._paint_key!=self.visual_key()
+
     def render(self):
         if self._splash_pending and self.splash_until!=0:
             frame=render_splash(0)
@@ -161,11 +184,13 @@ class NativeDeck(Dashboard):
             self._splash_pending=False
             logging.info('Native splash waits for Enter Main Menu')
             self.alerts.draw(frame)
+            self._paint_key=self.visual_key()
             return frame
         frame=super().render()
         if self._selection is not None and time.monotonic()>=self.splash_until and self._selection<len(self.buttons):
             ImageDraw.Draw(frame).rounded_rectangle(self.buttons[self._selection].rect,radius=6,outline='#eaffee',width=2)
         self.alerts.draw(frame)
+        self._paint_key=self.visual_key()
         return frame
 
 

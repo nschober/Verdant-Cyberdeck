@@ -9,7 +9,8 @@ import subprocess
 import sys
 ROOT=Path(os.environ.get('CYBERDECK_MANAGEMENT_ROOT',Path(__file__).resolve().parent))
 HOME=Path.home()
-MANIFEST=ROOT/'logs/installed-files.json'
+STATE_ROOT=ROOT if os.access(ROOT,os.W_OK) else Path(os.environ.get('XDG_STATE_HOME',str(HOME/'.local/state')))/'verdant-cyberdeck'
+MANIFEST=STATE_ROOT/'logs/installed-files.json'
 MARKER='# Managed by kali-cyberdeck-35'
 
 def desktop():
@@ -24,10 +25,11 @@ def install_alerts():
     write_owned(HOME/'.config/autostart/verdant-alerts.desktop',content)
 
 def write_owned(path,content,executable=False):
+    MANIFEST.parent.mkdir(parents=True,exist_ok=True)
     manifest=json.loads(MANIFEST.read_text()) if MANIFEST.exists() else {}
     key=str(path)
     if path.exists() and path.read_text()!=content:
-        backup=ROOT/'backups'/datetime.datetime.now().strftime('%Y%m%d-%H%M%S-%f')
+        backup=STATE_ROOT/'backups'/datetime.datetime.now().strftime('%Y%m%d-%H%M%S-%f')
         backup.mkdir(parents=True)
         dest=backup/path.name
         shutil.copy2(path,dest)

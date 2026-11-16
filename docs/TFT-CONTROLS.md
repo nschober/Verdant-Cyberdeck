@@ -12,13 +12,11 @@ Frames older than 30 seconds show a waiting screen instead of passing stale cont
 
 ## Pointer
 
-Relative input uses 0.28 pixels per input count and preserves fractional motion. Position updates are coalesced; pointer publication and framebuffer drawing are capped at 30 Hz, while dashboard content is cached for 100 ms. Events are drained without rendering or writing a file for each individual X/Y movement. These are application changes; desktop mouse settings and display/driver configuration are untouched. Physical smoothness still needs observation on the TFT after apply.
+Relative input uses 0.28 pixels per input count and preserves fractional motion. Position updates are coalesced; pointer publication and framebuffer drawing are capped at 30 Hz while moving. Unchanged dashboard frames are reused indefinitely, with change-driven redraws and 250 ms idle waits. Events are drained without rendering or writing a file for each individual X/Y movement. These are application changes; desktop mouse settings and display/driver configuration are untouched. Physical smoothness still needs observation on the TFT after apply.
 
-## Password-protected pages
+## Settings and configuration
 
-System/setup pages and both Pwnagotchi Configuration/Settings routes require the **existing kali login password** on each entry. Authentication uses the installed PAM `login` policy and checks account validity. The app does not set a new password, read/export password hashes, change PAM files, retain an unlock session, or log credentials. Failed/unavailable authentication denies access. Password input is masked and cleared when submitted or cancelled. An on-screen keyboard supports letters, digits, punctuation and spaces; Shift and Symbols expose additional keys. A physical keyboard is also supported. PAM work runs in a background worker so its configured failure delay does not freeze the pointer.
-
-These gates protect pages within this application; they are not a replacement for the Kali lock screen or permissions and do not password-lock independent desktop applications, SSH, or a terminal the user can already access. Existing Configuration is a read-only credential-redacted summary.
+System, Configuration and Settings now open directly without a password prompt. The earlier application PAM gate was removed at the owner's request. Existing OS service authorization and Pwnagotchi web credentials are unchanged. Configuration summaries remain read-only and credential-redacted.
 
 ## Apply and rollback
 

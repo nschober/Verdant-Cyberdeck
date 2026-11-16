@@ -25,3 +25,7 @@ core.*
 .DS_Store
 .idea/
 .vscode/
+
+/dist/
+/build/
+/*.egg-info/
