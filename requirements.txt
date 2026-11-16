@@ -1,2 +1,3 @@
 # Use Kali apt packages: python3-tk, python3-pil, python3-pil.imagetk, python3-evdev.
 # No pip installations or Pwnagotchi environment changes.
+# Optional offline processor: hcxtools/hcxpcapngtool (already installed on the target Pi).

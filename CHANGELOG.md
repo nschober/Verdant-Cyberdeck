@@ -74,3 +74,9 @@
 - Accept the installed logger’s thread prefix and separator colon, which previously prevented genuine capture notifications from being published.
 - Log a short publication ID for diagnosis without including capture details.
 - Remove Back from the main menu while retaining it on subpages.
+
+## Automatic daily handshake preparation — 2026-11-15
+
+- Added passive stable-capture conversion with the existing hcxpcapngtool, daily mode-22000 aggregation and deduplication.
+- Added a 22-column Excel-compatible CSV inventory, safe cell escaping, source-version history and conversion diagnostics.
+- Added an independent network-isolated systemd service installer with verified backup/rollback; no Pwnagotchi or network configuration changes.

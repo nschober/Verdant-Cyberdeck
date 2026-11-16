@@ -141,3 +141,7 @@ See [recorded evidence](docs/evidence/) and [TEST-RESULTS.md](TEST-RESULTS.md) f
 - [Previous dashboard source](docs/legacy/previous-app.py.txt), retained as historical text
 
 Use only within explicit authorization and agreed scope. This independent project is not endorsed by Kali Linux, Raspberry Pi, Pwnagotchi or other tool vendors. Its MIT license covers Verdant project material; the included Pwnagotchi source retains its original GPLv3 and nested licenses, and external tools retain their own terms. Review those tools' terms before redistribution.
+
+## Automatic handshake preparation
+
+The [daily handshake processor](docs/HANDSHAKE-PROCESSING.md) converts stable existing Pwnagotchi captures into one deduplicated `YYYY-MM-DD.22000` file per saved capture date and an Excel-compatible `handshakes.csv` inventory with capture, SSID/BSSID/client, type, record ID, conversion status and diagnostics. It runs independently of the dashboard, preserves originals, and starts no wireless operations or password-cracking jobs. Its separate root installer enables only the offline processing service.

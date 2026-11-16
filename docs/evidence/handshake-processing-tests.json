@@ -1,0 +1,13 @@
+{
+  "suite_total": 72,
+  "suite_passed": 71,
+  "suite_skipped": 1,
+  "processor_tests": 11,
+  "actual_installed_converter": "hcxpcapngtool 7.1.2; ARM64 hcxtools 7.1.2-1",
+  "actual_converter_test": "synthetic empty PCAP; no false usable hash emitted",
+  "daily_aggregation_csv_checkpoint_symlink_tests": "passed",
+  "systemd_unit_syntax": "unit settings covered by tests; systemd-analyze verify unavailable because sandbox denies required socket options",
+  "configured_input": "/var/lib/pwnagotchi/handshakes",
+  "root_service_install": "pending",
+  "real_capture_processing": "pending host apply; no capture or cracking operation triggered"
+}
