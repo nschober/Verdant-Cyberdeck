@@ -77,12 +77,19 @@ class Dashboard:
             self.buttons.append(Button(label,(x,y,x+231,y+58),callback))
 
     def home(self):
-        self.grid('VERDANT CYBERDECK',[
+        self.reset('VERDANT CYBERDECK')
+        items = [
             ('WI-FI RECON',self.wifi),('PWNAGOTCHI',self.pwn),
             ('NETWORK',lambda:self.tools('NETWORK')),('WIRELESS',lambda:self.tools('WIRELESS')),
-            ('BLUETOOTH',self.bt),('TRAFFIC / WEB',lambda:self.tools('TRAFFIC / WEB'))])
-        self.buttons=[button for button in self.buttons if button.label not in ('BACK','MAIN MENU')]
-        self.buttons.append(Button('SYSTEM',(285,281,474,316),lambda:self.protect(self.system)))
+            ('BLUETOOTH',self.bt),('TRAFFIC / WEB',lambda:self.tools('TRAFFIC / WEB')),
+            ('SYSTEM',lambda:self.protect(self.system)),
+        ]
+        # Center the last button while keeping the same dimensions and row spacing.
+        self.buttons = []
+        for i, (label, callback) in enumerate(items):
+            x = 124 if i == len(items) - 1 else 6 + (i % 2) * 237
+            y = 75 + (i // 2) * 59
+            self.buttons.append(Button(label, (x, y, x + 231, y + 53), callback))
 
     def text(self, title, content, controls=()):
         self.reset(title)
