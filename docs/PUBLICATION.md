@@ -4,9 +4,9 @@ The confirmed remote is **[nschober/Verdant-Cyberdeck](https://github.com/nschob
 
 ## Included
 
-The current Verdant application source, five shell entry points, Python management/verification utilities, dependency notes, tests, synthetic fixtures, actual offscreen screenshots, usage/architecture/history documentation, original implementation as historical text, license, notices, policies, GitHub workflow/templates and reviewed verification evidence are part of the repository.
+The current Verdant application source, five shell entry points, Python management/verification utilities, dependency notes, tests, synthetic fixtures, actual offscreen screenshots, usage/architecture/history documentation, license, notices, policies, GitHub workflow/templates and reviewed verification evidence are part of the repository.
 
-`docs/evidence/initial-*` preserves the reviewed original install/test evidence, including unsuccessful hardware checks. The initial README is retained as `docs/INSTALLATION-REPORT.md` so installation findings are not discarded during the rename. `docs/legacy/previous-app.py.txt` preserves the previous application source supplied on this host.
+`docs/evidence/initial-*` preserves the reviewed original install/test evidence, including unsuccessful hardware checks. The initial README is retained as `docs/INSTALLATION-REPORT.md` so installation findings are not discarded during the rename.
 
 `docs/REPOSITORY-FILES.sha256` records the included source/document/assets checksums at preparation time, excluding itself to avoid a circular hash. `scripts/check_publication.py` checks tracked/staged files for common private-artifact types, private-key headers and selected credential formats. It is not a guarantee that all sensitive content is detected.
 
